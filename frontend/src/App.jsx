@@ -1,370 +1,207 @@
 import {
-BrowserRouter,
-Routes,
-Route
+  BrowserRouter,
+  Routes,
+  Route
 } from "react-router-dom";
 
-
-// PUBLIC PAGES
+/* =========================
+   PUBLIC PAGES
+========================= */
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-import Services from "./pages/Services";
-import ServiceDetails from "./pages/services/ServiceDetails";
-
 import Company from "./pages/Company";
+import Solutions from "./pages/Solutions";
+import Investors from "./pages/Investors";
+import Services from "./pages/Services";
+import ServiceDetails from "./pages/ServiceDetails";
 
 
-
-// DASHBOARD LAYOUT
-
-import DashboardLayout from "./layouts/DashboardLayout";
-
-
-
-// TECHNICIAN
-
-import TechnicianDashboard from "./pages/TechnicianDashboard";
-
-import TechnicianJobs from "./pages/technician/TechnicianJobs";
-
-import TechnicianJobDetails from "./pages/technician/TechnicianJobDetails";
-
-import TechnicianEarnings from "./pages/technician/TechnicianEarnings";
-
-import TechnicianAnalytics from "./pages/technician/TechnicianAnalytics";
-
-import TechnicianProfile from "./pages/technician/TechnicianProfile";
-
-import TechnicianSettings from "./pages/technician/TechnicianSettings";
-
-
-
-// CLIENT
+/* =========================
+   CLIENT PAGES
+========================= */
 
 import ClientDashboard from "./pages/ClientDashboard";
-
-import CreateRequest from "./pages/client/CreateRequest";
-
 import ClientRequests from "./pages/ClientRequests";
-
+import NewServiceRequest from "./pages/NewServiceRequest";
+import ClientRequestDetails from "./pages/ClientRequestDetails";
 import ClientProfile from "./pages/ClientProfile";
-
 import ClientSettings from "./pages/ClientSettings";
 
 
+/* =========================
+   TECHNICIAN PAGES
+========================= */
 
-// ADMIN
+import TechnicianDashboard from "./pages/TechnicianDashboard";
+import TechnicianJobs from "./pages/TechnicianJobs";
+import TechnicianEarnings from "./pages/TechnicianEarnings";
+import TechnicianAnalytics from "./pages/TechnicianAnalytics";
+import TechnicianProfile from "./pages/TechnicianProfile";
+import TechnicianSettings from "./pages/TechnicianSettings";
+
+
+/* =========================
+   ADMIN
+========================= */
 
 import AdminDashboard from "./pages/AdminDashboard";
 
 
+export default function App() {
 
-export default function App(){
+  return (
 
+    <BrowserRouter>
 
-return (
+      <Routes>
 
-<BrowserRouter>
 
+        {/* =====================================
+            MAIN WEBSITE
+        ===================================== */}
 
-<Routes>
+        <Route
+          path="/"
+          element={<Home />}
+        />
+
+        <Route
+          path="/services"
+          element={<Services />}
+        />
+
+        <Route
+          path="/services/:slug"
+          element={<ServiceDetails />}
+        />
+
+        <Route
+          path="/company"
+          element={<Company />}
+        />
 
+        <Route
+          path="/solutions"
+          element={<Solutions />}
+        />
+
+        <Route
+          path="/investors"
+          element={<Investors />}
+        />
 
-{/* ================= PUBLIC ================= */}
 
+        {/* =====================================
+            AUTHENTICATION
+        ===================================== */}
 
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-<Route
+        <Route
+          path="/register"
+          element={<Register />}
+        />
 
-path="/"
 
-element={<Home/>}
+        {/* =====================================
+            CLIENT DASHBOARD
+        ===================================== */}
 
-/>
+        <Route
+          path="/client/dashboard"
+          element={<ClientDashboard />}
+        />
 
+        <Route
+          path="/client/requests"
+          element={<ClientRequests />}
+        />
 
+        <Route
+          path="/client/requests/new"
+          element={<NewServiceRequest />}
+        />
 
-<Route
+        <Route
+          path="/client/requests/:id"
+          element={<ClientRequestDetails />}
+        />
 
-path="/login"
+        <Route
+          path="/client/profile"
+          element={<ClientProfile />}
+        />
 
-element={<Login/>}
+        <Route
+          path="/client/settings"
+          element={<ClientSettings />}
+        />
 
-/>
 
+        {/* =====================================
+            TECHNICIAN DASHBOARD
+        ===================================== */}
 
+        <Route
+          path="/technician/dashboard"
+          element={<TechnicianDashboard />}
+        />
 
-<Route
+        <Route
+          path="/technician/jobs"
+          element={<TechnicianJobs />}
+        />
 
-path="/register"
+        <Route
+          path="/technician/earnings"
+          element={<TechnicianEarnings />}
+        />
 
-element={<Register/>}
+        <Route
+          path="/technician/analytics"
+          element={<TechnicianAnalytics />}
+        />
 
-/>
+        <Route
+          path="/technician/profile"
+          element={<TechnicianProfile />}
+        />
 
+        <Route
+          path="/technician/settings"
+          element={<TechnicianSettings />}
+        />
 
 
-<Route
+        {/* =====================================
+            ADMIN
+        ===================================== */}
 
-path="/services"
+        <Route
+          path="/admin/dashboard"
+          element={<AdminDashboard />}
+        />
 
-element={<Services/>}
 
-/>
+        {/* =====================================
+            FALLBACK
+        ===================================== */}
 
+        <Route
+          path="*"
+          element={<Home />}
+        />
 
+      </Routes>
 
-<Route
+    </BrowserRouter>
 
-path="/services/:name"
-
-element={<ServiceDetails/>}
-
-/>
-
-
-
-<Route
-
-path="/company"
-
-element={<Company/>}
-
-/>
-
-
-
-
-
-{/* ================= TECHNICIAN ================= */}
-
-
-
-<Route
-
-path="/technician"
-
-element={
-<DashboardLayout role="TECHNICIAN"/>
-}
-
->
-
-
-<Route
-
-index
-
-element={
-<TechnicianDashboard/>
-}
-
-/>
-
-
-
-<Route
-
-path="jobs"
-
-element={
-<TechnicianJobs/>
-}
-
-/>
-
-
-
-<Route
-
-path="jobs/:id"
-
-element={
-<TechnicianJobDetails/>
-}
-
-/>
-
-
-
-<Route
-
-path="earnings"
-
-element={
-<TechnicianEarnings/>
-}
-
-/>
-
-
-
-<Route
-
-path="analytics"
-
-element={
-<TechnicianAnalytics/>
-}
-
-/>
-
-
-
-<Route
-
-path="profile"
-
-element={
-<TechnicianProfile/>
-}
-
-/>
-
-
-
-<Route
-
-path="settings"
-
-element={
-<TechnicianSettings/>
-}
-
-/>
-
-
-</Route>
-
-
-
-
-
-
-
-{/* ================= CLIENT ================= */}
-
-
-
-<Route
-
-path="/client"
-
-element={
-<DashboardLayout role="CLIENT"/>
-}
-
->
-
-
-<Route
-
-index
-
-element={
-<ClientDashboard/>
-}
-
-/>
-
-
-
-<Route
-
-path="request"
-
-element={
-<CreateRequest/>
-}
-
-/>
-
-
-
-<Route
-
-path="requests"
-
-element={
-<ClientRequests/>
-}
-
-/>
-
-
-
-<Route
-
-path="profile"
-
-element={
-<ClientProfile/>
-}
-
-/>
-
-
-
-<Route
-
-path="settings"
-
-element={
-<ClientSettings/>
-}
-
-/>
-
-
-
-</Route>
-
-
-
-
-
-
-
-{/* ================= ADMIN ================= */}
-
-
-
-<Route
-
-path="/admin"
-
-element={
-<DashboardLayout role="ADMIN"/>
-}
-
->
-
-
-<Route
-
-index
-
-element={
-<AdminDashboard/>
-}
-
-/>
-
-
-</Route>
-
-
-
-
-
-</Routes>
-
-
-</BrowserRouter>
-
-)
+  );
 
 }

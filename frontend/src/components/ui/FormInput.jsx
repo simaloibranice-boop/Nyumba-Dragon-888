@@ -2,113 +2,174 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 
-
 export default function FormInput({
-icon,
-placeholder,
-type="text",
-value,
-onChange,
-error
-}){
 
-const [show,setShow]=useState(false);
+    icon,
 
+    label,
 
-const password = type==="password";
+    placeholder,
 
+    type = "text",
 
-return (
+    value,
 
-<div>
+    onChange,
 
-<motion.div
-whileFocus={{scale:1.02}}
-className="
-flex
-items-center
-gap-3
-px-5
-py-3
-rounded-2xl
-bg-gray-50
-border
-border-gray-200
-focus-within:border-blue-400
-transition
-"
->
+    name,
 
-<div className="text-blue-400">
-{icon}
-</div>
+    required = false,
 
+    error = "",
 
-<input
+    disabled = false,
 
-type={
-password && show
-?
-"text"
-:
-type
-}
+}) {
 
-placeholder={placeholder}
+    const [showPassword, setShowPassword] = useState(false);
 
-value={value}
+    const isPassword = type === "password";
 
-onChange={onChange}
+    return (
 
-className="
-bg-transparent
-outline-none
-w-full
-text-gray-700
-"
+        <div className="w-full space-y-2">
 
-/>
+            {label && (
 
+                <label className="block text-sm font-semibold text-white/80">
 
-{
-password &&
+                    {label}
 
-<button
-type="button"
-onClick={()=>setShow(!show)}
-className="text-gray-400"
->
+                </label>
 
-{
-show ?
-<EyeOff/>
-:
-<Eye/>
-}
+            )}
 
-</button>
+            <motion.div
 
-}
+                whileFocus={{ scale: 1.01 }}
 
+                className="
+                flex
+                items-center
+                gap-3
 
-</motion.div>
+                rounded-[22px]
 
+                border
+                border-white/10
 
-{
-error &&
-<p className="
-text-red-500
-text-sm
-mt-2
-ml-3
-">
-{error}
-</p>
-}
+                bg-white/10
 
+                backdrop-blur-3xl
 
-</div>
+                px-5
+                py-4
 
-)
+                shadow-[inset_4px_4px_12px_rgba(255,255,255,.08),10px_10px_30px_rgba(0,0,0,.30)]
+
+                transition-all
+
+                focus-within:border-cyan-400/60
+                "
+
+            >
+
+                {icon && (
+
+                    <div className="text-cyan-300">
+
+                        {icon}
+
+                    </div>
+
+                )}
+
+                <input
+
+                    name={name}
+
+                    required={required}
+
+                    disabled={disabled}
+
+                    value={value}
+
+                    onChange={onChange}
+
+                    placeholder={placeholder}
+
+                    type={
+                        isPassword
+                            ? (
+                                showPassword
+                                    ? "text"
+                                    : "password"
+                              )
+                            : type
+                    }
+
+                    className="
+                    w-full
+
+                    bg-transparent
+
+                    text-white
+
+                    placeholder:text-white/40
+
+                    outline-none
+                    "
+
+                />
+
+                {isPassword && (
+
+                    <button
+
+                        type="button"
+
+                        onClick={() => setShowPassword(!showPassword)}
+
+                        className="
+                        text-cyan-300
+                        hover:text-white
+                        transition
+                        "
+
+                    >
+
+                        {
+
+                            showPassword
+
+                                ? <EyeOff size={20}/>
+
+                                : <Eye size={20}/>
+
+                        }
+
+                    </button>
+
+                )}
+
+            </motion.div>
+
+            {
+
+                error && (
+
+                    <p className="pl-2 text-sm text-red-400">
+
+                        {error}
+
+                    </p>
+
+                )
+
+            }
+
+        </div>
+
+    );
 
 }

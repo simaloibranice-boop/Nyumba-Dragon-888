@@ -1,68 +1,81 @@
-import axios from "axios";
+import api from "./api";
 
-const API = "http://127.0.0.1:5000/api";
+/*
+|--------------------------------------------------------------------------
+| CLIENT SERVICES
+|--------------------------------------------------------------------------
+| All client requests use the shared Axios instance.
+| api.js automatically attaches the JWT token from localStorage.
+|--------------------------------------------------------------------------
+*/
 
-function authHeader(token){
 
-    console.log("========== CLIENT TOKEN ==========");
-    console.log(token);
-    console.log("==================================");
+// GET AVAILABLE SERVICES
+export const getClientServices = async () => {
 
-    return {
-        headers:{
-            Authorization:`Bearer ${token}`
-        }
-    };
-}
-
-export async function getServices(token){
-
-    const response = await axios.get(
-        `${API}/client/services`,
-        authHeader(token)
+    const response = await api.get(
+        "/client/services"
     );
 
     return response.data;
-}
+};
 
-export async function getRequests(token){
 
-    const response = await axios.get(
-        `${API}/client/requests`,
-        authHeader(token)
+// GET CLIENT REQUESTS
+export const getClientRequests = async () => {
+
+    const response = await api.get(
+        "/client/requests"
     );
 
     return response.data;
-}
+};
 
-export async function createRequest(token, requestData){
 
-    const response = await axios.post(
-        `${API}/client/requests`,
-        requestData,
-        authHeader(token)
+// GET SINGLE CLIENT REQUEST
+export const getClientRequest = async (id) => {
+
+    const response = await api.get(
+        `/client/requests/${id}`
     );
 
     return response.data;
-}
+};
 
-export async function updateRequest(token, id, requestData){
 
-    const response = await axios.put(
-        `${API}/client/requests/${id}`,
-        requestData,
-        authHeader(token)
+// CREATE SERVICE REQUEST
+export const createClientRequest = async (requestData) => {
+
+    const response = await api.post(
+        "/client/requests",
+        requestData
     );
 
     return response.data;
-}
+};
 
-export async function deleteRequest(token, id){
 
-    const response = await axios.delete(
-        `${API}/client/requests/${id}`,
-        authHeader(token)
+// UPDATE SERVICE REQUEST
+export const updateClientRequest = async (
+    id,
+    requestData
+) => {
+
+    const response = await api.put(
+        `/client/requests/${id}`,
+        requestData
     );
 
     return response.data;
-}
+};
+
+
+// DELETE SERVICE REQUEST
+export const deleteClientRequest = async (id) => {
+
+    const response = await api.delete(
+        `/client/requests/${id}`
+    );
+
+    return response.data;
+};

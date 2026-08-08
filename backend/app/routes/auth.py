@@ -15,13 +15,13 @@ auth_bp = Blueprint(
 
 def normalize_phone(phone):
     """
-    Converts Kenyan phone numbers to one format.
+    Converts phone numbers into international format.
 
     0712345678
     +254712345678
     254712345678
 
-    all become
+    becomes:
 
     254712345678
     """
@@ -29,12 +29,16 @@ def normalize_phone(phone):
     if not phone:
         return None
 
-    phone = phone.replace(" ", "").replace("-", "")
+    phone = (
+        phone
+        .replace(" ", "")
+        .replace("-", "")
+    )
 
-    if phone.startswith("+254"):
+    if phone.startswith("+"):
         phone = phone[1:]
 
-    elif phone.startswith("0"):
+    if phone.startswith("0"):
         phone = "254" + phone[1:]
 
     return phone
@@ -44,14 +48,16 @@ def normalize_phone(phone):
 @auth_bp.route("/register", methods=["POST"])
 def register():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
 
-    username = data.get("username")
+    full_name = data.get("full_name")
     email = data.get("email")
-    phone = normalize_phone(data.get("phone"))
+    age = data.get("age")
+    phone = normalize_phone(
+        data.get("phone")
+    )
     password = data.get("password")
-
 
     role = data.get(
         "role",
@@ -59,50 +65,57 @@ def register():
     ).upper()
 
 
-    allowed_roles = [
+
+    if role not in [
         "CLIENT",
         "TECHNICIAN"
-    ]
-
-
-    if role not in allowed_roles:
-
+    ]:
         role = "CLIENT"
 
 
 
-    if not username or not phone or not password:
+    if not all([
+        full_name,
+        email,
+        age,
+        phone,
+        password
+    ]):
 
         return jsonify({
-            "message": "Missing required fields"
+            "message": "All fields are required"
         }), 400
 
 
 
-    existing_user = User.query.filter(
-        (User.username == username) |
+    existing = User.query.filter(
+        (User.email == email) |
         (User.phone == phone)
     ).first()
 
 
 
-    if existing_user:
+    if existing:
 
         return jsonify({
-            "message": "Account already exists"
+            "message": "Email or phone already registered"
         }), 409
 
 
 
     user = User(
 
-        username=username,
+        full_name=full_name,
 
         email=email,
 
+        age=int(age),
+
         phone=phone,
 
-        password=generate_password_hash(password),
+        password=generate_password_hash(
+            password
+        ),
 
         role=role
 
@@ -124,23 +137,11 @@ def register():
 
     return jsonify({
 
-        "message": "Dragon account created",
+        "message": "Account created successfully",
 
         "token": token,
 
-        "user": {
-
-            "id": user.id,
-
-            "username": user.username,
-
-            "email": user.email,
-
-            "phone": user.phone,
-
-            "role": user.role
-
-        }
+        "user": user.to_dict()
 
     }), 201
 
@@ -151,12 +152,8 @@ def register():
 @auth_bp.route("/login", methods=["POST"])
 def login():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
-
-    username = data.get("username")
-
-    email = data.get("email")
 
     phone = normalize_phone(
         data.get("phone")
@@ -166,78 +163,41 @@ def login():
 
 
 
-    print("\n========== LOGIN ==========")
+    if not phone or not password:
 
-    print("Username:", username)
-
-    print("Email:", email)
-
-    print("Phone:", phone)
+        return jsonify({
+            "message": "Phone and password required"
+        }), 400
 
 
 
-    user = None
-
-
-
-    if username:
-
-        user = User.query.filter_by(
-            username=username
-        ).first()
-
-
-
-    if not user and email:
-
-        user = User.query.filter_by(
-            email=email
-        ).first()
-
-
-
-    if not user and phone:
-
-        user = User.query.filter_by(
-            phone=phone
-        ).first()
+    user = User.query.filter_by(
+        phone=phone
+    ).first()
 
 
 
     if not user:
 
         return jsonify({
-
             "message": "Invalid credentials"
-
         }), 401
 
 
 
-    password_ok = check_password_hash(
-
+    if not check_password_hash(
         user.password,
-
         password
-
-    )
-
-
-
-    if not password_ok:
+    ):
 
         return jsonify({
-
             "message": "Invalid credentials"
-
         }), 401
 
 
 
     token = create_access_token(
-
         identity=str(user.id)
-
     )
 
 
@@ -248,18 +208,6 @@ def login():
 
         "token": token,
 
-        "user": {
-
-            "id": user.id,
-
-            "username": user.username,
-
-            "email": user.email,
-
-            "phone": user.phone,
-
-            "role": user.role
-
-        }
+        "user": user.to_dict()
 
     }), 200

@@ -67,14 +67,14 @@ icon:<LayoutDashboard/>
 },
 
 {
-name:"My Requests",
+name:"Requests",
 path:"/client/requests",
 icon:<ClipboardList/>
 },
 
 {
 name:"Create Request",
-path:"/client/create-request",
+path:"/client/request",
 icon:<PlusCircle/>
 },
 
@@ -94,7 +94,7 @@ icon:<Settings/>
 
 
 
-const links=
+const links =
 role==="TECHNICIAN"
 ?
 technician
@@ -108,39 +108,69 @@ return (
 <aside
 
 className="
-w-72
+hidden
+md:flex
+w-80
 min-h-screen
-bg-gradient-to-b
-from-[#020617]
-to-[#111827]
-border-r
-border-white/10
 p-6
-text-white
 "
 
 >
 
 
-<div className="mb-10">
-
-
-<h1
+<div
 
 className="
-text-2xl
+glass
+rounded-[45px]
+p-6
+w-full
+"
+
+>
+
+
+<div className="mb-10 text-center">
+
+
+<div
+
+className="
+mx-auto
+w-20
+h-20
+rounded-[35px]
+clay
+flex
+items-center
+justify-center
+text-3xl
 font-black
 text-cyan-300
 "
 
 >
 
-888 Dragon
+888
+
+</div>
+
+
+<h1 className="
+mt-4
+text-2xl
+font-black
+">
+
+Dragon
 
 </h1>
 
 
-<p className="text-gray-400">
+<p className="
+text-white/50
+text-sm
+">
 
 Intelligent Ecosystem
 
@@ -151,38 +181,41 @@ Intelligent Ecosystem
 
 
 
+
+
 <nav className="space-y-3">
 
 
 {
-
-links.map(link=>(
+links.map(item=>(
 
 
 <Link
 
-key={link.name}
+key={item.name}
 
-to={link.path}
+to={item.path}
 
 className="
 flex
 items-center
-gap-3
-px-4
-py-3
-rounded-xl
-text-gray-200
-hover:bg-cyan-400/20
+gap-4
+p-4
+rounded-3xl
+text-white/80
+hover:bg-white/10
 hover:text-cyan-300
 transition
 "
 
 >
 
-{link.icon}
+{item.icon}
 
-{link.name}
+<span className="font-bold">
+{item.name}
+</span>
+
 
 </Link>
 
@@ -197,32 +230,44 @@ transition
 
 
 
+
 <div
 
 className="
 mt-10
+clay
+rounded-3xl
 p-4
-rounded-xl
-bg-white/5
-border
-border-white/10
+text-center
 "
 
 >
 
+<p className="
+text-white/50
+text-sm
+">
 
-<p className="text-gray-400 text-sm">
-Current Role
+Role
+
 </p>
 
 
-<p className="font-black text-cyan-300">
+<p className="
+font-black
+text-cyan-300
+">
+
 {role}
+
 </p>
 
 
 </div>
 
+
+
+</div>
 
 
 </aside>

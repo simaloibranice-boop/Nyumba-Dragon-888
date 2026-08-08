@@ -1,811 +1,504 @@
 import {
-useState,
-useContext
+    useState,
+    useContext
 } from "react";
 
 import {
-Link,
-useNavigate
+    Link,
+    useNavigate
 } from "react-router-dom";
 
-import {
-motion
-} from "framer-motion";
-
+import AuthLayout from "../components/auth/AuthLayout";
 
 import {
-Mail,
-Phone,
-User,
-Lock,
-Calendar
-} from "lucide-react";
-
-
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
-
-
-import FormInput from "../components/ui/FormInput";
-
-import API from "../services/api";
-
-import {
-AuthContext
+    AuthContext
 } from "../context/AuthContext";
 
 
+export default function Register() {
 
-export default function Register(){
+    const navigate = useNavigate();
 
+    const {
+        register
+    } = useContext(AuthContext);
 
-const {
-login
-}=useContext(AuthContext);
 
+    const [form, setForm] = useState({
 
-const navigate=useNavigate();
+        full_name: "",
+        email: "",
+        age: "",
+        phone: "",
+        password: "",
+        role: "CLIENT"
 
+    });
 
 
-const [form,setForm]=useState({
+    const [error, setError] =
+        useState("");
 
-fullname:"",
-username:"",
-email:"",
-phone:"",
-age:"",
-password:"",
-confirmPassword:"",
-role:"CLIENT"
 
-});
+    const [loading, setLoading] =
+        useState(false);
 
 
+    // =====================================
+    // HANDLE INPUT
+    // =====================================
 
-const [errors,setErrors]=useState({});
+    const handleChange = (e) => {
 
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value
+        });
 
+        setError("");
 
-function update(field,value){
+    };
 
-setForm({
 
-...form,
+    // =====================================
+    // REGISTER
+    // =====================================
 
-[field]:value
+    const handleSubmit = async (e) => {
 
-});
+        e.preventDefault();
 
-}
+        setError("");
+        setLoading(true);
 
 
+        try {
 
+            const user = await register({
 
-function validate(){
+                full_name:
+                    form.full_name,
 
-let e={};
+                email:
+                    form.email,
 
+                age:
+                    Number(form.age),
 
+                phone:
+                    form.phone,
 
-if(!form.fullname)
+                password:
+                    form.password,
 
-e.fullname="Full name required";
+                role:
+                    form.role
 
+            });
 
 
-if(form.username.length < 4)
+            console.log(
+                "REGISTRATION SUCCESS:",
+                user
+            );
 
-e.username="Username must be at least 4 characters";
 
+            // =================================
+            // REDIRECT
+            // =================================
 
+            if (
+                user.role === "TECHNICIAN"
+            ) {
 
-if(!/\S+@\S+\.\S+/.test(form.email))
+                navigate(
+                    "/technician/dashboard"
+                );
 
-e.email="Valid email required";
-
-
-
-if(!form.phone)
-
-e.phone="Phone number required";
-
-
-
-if(form.age < 18)
-
-e.age="Must be 18+";
-
-
-
-if(form.password.length < 8)
-
-e.password="Minimum 8 characters";
-
-
-
-if(form.password !== form.confirmPassword)
-
-e.confirmPassword="Passwords do not match";
-
-
-
-setErrors(e);
-
-
-return Object.keys(e).length===0;
-
-
-}
-
-
-
-
-async function submit(e){
-
-e.preventDefault();
-
-
-
-if(!validate())
-
-return;
-
-
-
-try{
-
-
-const response=await API.post(
-
-"/auth/register",
-
-{
-
-full_name:form.fullname,
-
-username:form.username,
-
-email:form.email,
-
-phone:form.phone,
-
-age:form.age,
-
-password:form.password,
-
-role:form.role
-
-}
-
-);
-
-
-
-login(
-
-response.data.token,
-
-response.data.user
-
-);
-
-
-
-navigate("/");
-
-
-}
-
-
-catch(error){
-
-
-setErrors({
-
-server:
-error.response?.data?.message ||
-"Registration failed"
-
-});
-
-
-}
-
-
-}
-
-
-
-
-return (
-
-<div
-
-className="
-min-h-screen
-flex
-items-center
-justify-center
-px-6
-py-20
-bg-gradient-to-br
-from-[#020617]
-via-[#071A33]
-to-[#111827]
-text-white
-"
-
->
-
-
-
-<motion.div
-
-
-initial={{
-opacity:0,
-y:40
-}}
-
-
-animate={{
-opacity:1,
-y:0
-}}
-
-
-transition={{
-duration:.7
-}}
-
-
-
-className="
-w-full
-max-w-xl
-bg-white/5
-border
-border-white/10
-backdrop-blur-xl
-rounded-3xl
-p-10
-shadow-2xl
-"
-
->
-
-
-
-
-<div className="text-center">
-
-
-<div
-
-className="
-mx-auto
-w-20
-h-20
-rounded-3xl
-bg-gradient-to-br
-from-cyan-400
-to-blue-600
-flex
-items-center
-justify-center
-font-black
-text-3xl
-"
-
->
-
-888
-
-</div>
-
-
-
-<h1
-
-className="
-text-3xl
-font-black
-mt-6
-"
-
->
-
-Create Dragon Account
-
-</h1>
-
-
-
-<p
-
-className="
-text-gray-300
-mt-2
-"
-
->
-
-Join Nyũmba Dragon 888 Intelligent Ecosystem
-
-</p>
-
-
-
-</div>
-
-
-
-
-
-
-<form
-
-onSubmit={submit}
-
-className="
-mt-8
-space-y-5
-"
-
->
-
-
-
-
-<FormInput
-
-icon={<User/>}
-
-placeholder="Full Name"
-
-value={form.fullname}
-
-onChange={
-e=>update(
-"fullname",
-e.target.value
-)
-}
-
-error={errors.fullname}
-
-/>
-
-
-
-
-
-<FormInput
-
-icon={<User/>}
-
-placeholder="Username"
-
-value={form.username}
-
-onChange={
-e=>update(
-"username",
-e.target.value
-)
-}
-
-error={errors.username}
-
-/>
-
-
-
-
-
-
-<FormInput
-
-icon={<Mail/>}
-
-placeholder="Email"
-
-value={form.email}
-
-onChange={
-e=>update(
-"email",
-e.target.value
-)
-}
-
-error={errors.email}
-
-/>
-
-
-
-
-
-
-
-<div
-
-className="
-bg-white
-rounded-xl
-p-3
-text-black
-"
-
->
-
-
-<PhoneInput
-
-
-international
-
-
-defaultCountry="KE"
-
-
-value={form.phone}
-
-
-onChange={
-value=>update(
-"phone",
-value
-)
-}
-
-
-/>
-
-
-</div>
-
-
-
-{
-errors.phone &&
-
-<p className="text-red-400 text-sm">
-
-{errors.phone}
-
-</p>
-
-}
-
-
-
-
-
-
-
-
-<FormInput
-
-icon={<Calendar/>}
-
-placeholder="Age"
-
-type="number"
-
-value={form.age}
-
-onChange={
-e=>update(
-"age",
-e.target.value
-)
-}
-
-error={errors.age}
-
-/>
-
-
-
-
-
-
-
-
-<div>
-
-
-<p
-
-className="
-font-bold
-text-gray-200
-mb-3
-"
-
->
-
-Account Type
-
-</p>
-
-
-
-
-<div
-
-className="
-grid
-grid-cols-2
-gap-4
-"
-
->
-
-
-
-<button
-
-
-type="button"
-
-
-onClick={
-()=>update(
-"role",
-"CLIENT"
-)
-}
-
-
-className={
-
-`
-
-p-4
-rounded-xl
-border
-font-black
-
-${
-form.role==="CLIENT"
-
-?
-
-"bg-cyan-400 text-black border-cyan-400"
-
-:
-
-"bg-white/10 text-white border-white/10"
-
-}
-
-`
-
-}
-
->
-
-Client
-
-</button>
-
-
-
-
-
-
-
-<button
-
-
-type="button"
-
-
-onClick={
-()=>update(
-"role",
-"TECHNICIAN"
-)
-}
-
-
-className={
-
-`
-
-p-4
-rounded-xl
-border
-font-black
-
-${
-form.role==="TECHNICIAN"
-
-?
-
-"bg-cyan-400 text-black border-cyan-400"
-
-:
-
-"bg-white/10 text-white border-white/10"
-
-}
-
-`
-
-}
-
->
-
-
-Technician
-
-
-</button>
-
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<FormInput
-
-icon={<Lock/>}
-
-placeholder="Password"
-
-type="password"
-
-value={form.password}
-
-onChange={
-e=>update(
-"password",
-e.target.value
-)
-}
-
-error={errors.password}
-
-/>
-
-
-
-
-
-
-<FormInput
-
-icon={<Lock/>}
-
-placeholder="Confirm Password"
-
-type="password"
-
-value={form.confirmPassword}
-
-onChange={
-e=>update(
-"confirmPassword",
-e.target.value
-)
-}
-
-error={errors.confirmPassword}
-
-/>
-
-
-
-
-
-
-
-{
-errors.server &&
-
-<p className="text-red-400">
-
-{errors.server}
-
-</p>
-
-}
-
-
-
-
-
-
-
-<button
-
-
-className="
-w-full
-py-4
-rounded-full
-bg-cyan-400
-text-black
-font-black
-hover:bg-cyan-300
-transition
-"
-
->
-
-Create Account
-
-</button>
-
-
-
-
-
-</form>
-
-
-
-
-
-
-
-<p
-
-className="
-text-center
-mt-6
-text-gray-300
-"
-
->
-
-Already have an account?
-
-
-<Link
-
-to="/login"
-
-className="
-ml-2
-text-cyan-300
-font-black
-"
-
->
-
-Login
-
-</Link>
-
-
-</p>
-
-
-
-
-
-</motion.div>
-
-
-</div>
-
-)
-
+            } else {
+
+                navigate(
+                    "/client/dashboard"
+                );
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "REGISTER ERROR:",
+                error
+            );
+
+
+            setError(
+                error.response?.data?.message ||
+                "Registration failed. Please try again."
+            );
+
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+
+    return (
+
+        <AuthLayout
+            title="Create Account"
+            subtitle="Join Nyũmba Dragon 888 today"
+        >
+
+            <form
+                onSubmit={handleSubmit}
+                className="space-y-4"
+            >
+
+                {/* ERROR */}
+                {error && (
+
+                    <div
+                        className="
+                            bg-red-50
+                            border
+                            border-red-200
+                            text-red-700
+                            text-sm
+                            rounded-xl
+                            px-4
+                            py-3
+                        "
+                    >
+                        {error}
+                    </div>
+
+                )}
+
+
+                {/* FULL NAME */}
+                <div>
+
+                    <label
+                        className="
+                            block
+                            text-sm
+                            font-semibold
+                            text-black
+                            mb-2
+                        "
+                    >
+                        Full Name
+                    </label>
+
+                    <input
+                        name="full_name"
+                        type="text"
+                        placeholder="Enter your full name"
+                        value={form.full_name}
+                        onChange={handleChange}
+                        required
+                        autoComplete="name"
+                        className="
+                            w-full
+                            border
+                            border-gray-300
+                            rounded-xl
+                            px-4
+                            py-3
+                            text-black
+                            bg-white
+                            placeholder-gray-500
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-green-600
+                            focus:border-green-600
+                        "
+                    />
+
+                </div>
+
+
+                {/* EMAIL */}
+                <div>
+
+                    <label
+                        className="
+                            block
+                            text-sm
+                            font-semibold
+                            text-black
+                            mb-2
+                        "
+                    >
+                        Email Address
+                    </label>
+
+                    <input
+                        name="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                        autoComplete="email"
+                        className="
+                            w-full
+                            border
+                            border-gray-300
+                            rounded-xl
+                            px-4
+                            py-3
+                            text-black
+                            bg-white
+                            placeholder-gray-500
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-green-600
+                            focus:border-green-600
+                        "
+                    />
+
+                </div>
+
+
+                {/* AGE */}
+                <div>
+
+                    <label
+                        className="
+                            block
+                            text-sm
+                            font-semibold
+                            text-black
+                            mb-2
+                        "
+                    >
+                        Age
+                    </label>
+
+                    <input
+                        name="age"
+                        type="number"
+                        min="13"
+                        max="100"
+                        placeholder="Enter your age"
+                        value={form.age}
+                        onChange={handleChange}
+                        required
+                        className="
+                            w-full
+                            border
+                            border-gray-300
+                            rounded-xl
+                            px-4
+                            py-3
+                            text-black
+                            bg-white
+                            placeholder-gray-500
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-green-600
+                            focus:border-green-600
+                        "
+                    />
+
+                </div>
+
+
+                {/* PHONE */}
+                <div>
+
+                    <label
+                        className="
+                            block
+                            text-sm
+                            font-semibold
+                            text-black
+                            mb-2
+                        "
+                    >
+                        Phone Number
+                    </label>
+
+                    <input
+                        name="phone"
+                        type="tel"
+                        placeholder="0712 345 678"
+                        value={form.phone}
+                        onChange={handleChange}
+                        required
+                        autoComplete="tel"
+                        className="
+                            w-full
+                            border
+                            border-gray-300
+                            rounded-xl
+                            px-4
+                            py-3
+                            text-black
+                            bg-white
+                            placeholder-gray-500
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-green-600
+                            focus:border-green-600
+                        "
+                    />
+
+                </div>
+
+
+                {/* PASSWORD */}
+                <div>
+
+                    <label
+                        className="
+                            block
+                            text-sm
+                            font-semibold
+                            text-black
+                            mb-2
+                        "
+                    >
+                        Password
+                    </label>
+
+                    <input
+                        name="password"
+                        type="password"
+                        placeholder="Create a password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                        minLength="6"
+                        autoComplete="new-password"
+                        className="
+                            w-full
+                            border
+                            border-gray-300
+                            rounded-xl
+                            px-4
+                            py-3
+                            text-black
+                            bg-white
+                            placeholder-gray-500
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-green-600
+                            focus:border-green-600
+                        "
+                    />
+
+                </div>
+
+
+                {/* ACCOUNT TYPE */}
+                <div>
+
+                    <label
+                        className="
+                            block
+                            text-sm
+                            font-semibold
+                            text-black
+                            mb-2
+                        "
+                    >
+                        Account Type
+                    </label>
+
+                    <select
+                        name="role"
+                        value={form.role}
+                        onChange={handleChange}
+                        className="
+                            w-full
+                            border
+                            border-gray-300
+                            rounded-xl
+                            px-4
+                            py-3
+                            text-black
+                            bg-white
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-green-600
+                            focus:border-green-600
+                        "
+                    >
+
+                        <option value="CLIENT">
+                            Client
+                        </option>
+
+                        <option value="TECHNICIAN">
+                            Technician
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {/* REGISTER BUTTON */}
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="
+                        w-full
+                        bg-red-600
+                        hover:bg-red-700
+                        disabled:bg-gray-400
+                        text-white
+                        font-semibold
+                        py-3
+                        rounded-xl
+                        transition
+                    "
+                >
+
+                    {loading
+                        ? "Creating Account..."
+                        : "Create Account"
+                    }
+
+                </button>
+
+
+                {/* LOGIN LINK */}
+                <p
+                    className="
+                        text-center
+                        text-gray-600
+                        text-sm
+                    "
+                >
+
+                    Already have an account?
+
+                    <Link
+                        to="/login"
+                        className="
+                            text-green-700
+                            font-semibold
+                            ml-1
+                            hover:text-green-800
+                        "
+                    >
+                        Login
+                    </Link>
+
+                </p>
+
+            </form>
+
+        </AuthLayout>
+
+    );
 
 }

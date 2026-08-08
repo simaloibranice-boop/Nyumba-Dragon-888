@@ -1,458 +1,352 @@
-import { useState,useContext } from "react";
-import { Link,useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import {
+    useState,
+    useContext
+} from "react";
 
 import {
-User,
-Mail,
-Lock
+    Link,
+    useNavigate
+} from "react-router-dom";
+
+import {
+    Eye,
+    EyeOff
 } from "lucide-react";
 
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
+import AuthLayout from "../components/auth/AuthLayout";
 
-import FormInput from "../components/ui/FormInput";
+import {
+    AuthContext
+} from "../context/AuthContext";
 
-import API from "../services/api";
-import {AuthContext} from "../context/AuthContext";
 
+export default function Login() {
 
-export default function Login(){
+    const navigate = useNavigate();
 
+    const {
+        login
+    } = useContext(AuthContext);
 
-const {login}=useContext(AuthContext);
 
-const navigate=useNavigate();
+    const [showPassword, setShowPassword] =
+        useState(false);
 
 
-const [method,setMethod]=useState("username");
+    const [form, setForm] = useState({
+        phone: "",
+        password: ""
+    });
 
 
-const [form,setForm]=useState({
+    const [error, setError] =
+        useState("");
 
-username:"",
-email:"",
-phone:"",
-password:""
 
-});
+    const [loading, setLoading] =
+        useState(false);
 
 
-const [errors,setErrors]=useState({});
+    // =====================================
+    // HANDLE INPUT
+    // =====================================
 
+    const handleChange = (e) => {
 
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value
+        });
 
-function update(field,value){
+        setError("");
 
-setForm({
+    };
 
-...form,
 
-[field]:value
+    // =====================================
+    // LOGIN
+    // =====================================
 
-});
+    const handleSubmit = async (e) => {
 
-}
+        e.preventDefault();
 
+        setError("");
+        setLoading(true);
 
 
-async function submit(e){
+        try {
 
-e.preventDefault();
+            const user = await login(
+                form.phone,
+                form.password
+            );
 
 
-try{
+            console.log(
+                "LOGIN SUCCESS:",
+                user
+            );
 
 
-const response=await API.post(
+            // =================================
+            // REDIRECT BASED ON ROLE
+            // =================================
 
-"/auth/login",
+            if (user.role === "TECHNICIAN") {
 
-{
+                navigate(
+                    "/technician/dashboard"
+                );
 
-username:
-method==="username"
-?
-form.username
-:
-undefined,
+            } else if (user.role === "ADMIN") {
 
+                navigate(
+                    "/admin/dashboard"
+                );
 
-email:
-method==="email"
-?
-form.email
-:
-undefined,
+            } else {
 
+                navigate(
+                    "/client/dashboard"
+                );
 
-phone:form.phone,
+            }
 
-password:form.password
 
-}
-
-);
-
-
-
-login(
-
-response.data.token,
-
-response.data.user
-
-);
-
-
-
-const role=response.data.user.role;
-
-
-if(role==="TECHNICIAN")
-
-navigate("/technician");
-
-
-else if(role==="CLIENT")
-
-navigate("/client");
-
-
-else
-
-navigate("/");
-
-
-}
-
-
-catch(error){
-
-setErrors({
-
-server:
-error.response?.data?.message ||
-"Login failed"
-
-});
-
-}
-
-
-}
-
-
-
-
-return (
-
-<div
-className="
-min-h-screen
-flex
-items-center
-justify-center
-bg-gradient-to-br
-from-[#020617]
-via-[#071A33]
-to-[#111827]
-px-6
-"
->
-
-
-<motion.div
-
-initial={{opacity:0,y:30}}
-
-animate={{opacity:1,y:0}}
-
-className="
-w-full
-max-w-md
-bg-white/5
-border
-border-white/10
-rounded-3xl
-backdrop-blur-xl
-p-10
-text-white
-"
-
->
-
-
-<div className="text-center">
-
-
-<div
-className="
-mx-auto
-w-20
-h-20
-rounded-3xl
-bg-gradient-to-br
-from-cyan-400
-to-blue-600
-flex
-items-center
-justify-center
-font-black
-text-3xl
-"
->
-888
-</div>
-
-
-<h1 className="
-text-3xl
-font-black
-mt-6
-"
->
-
-Welcome Back Dragon
-
-</h1>
-
-
-<p className="text-gray-300 mt-2">
-Access your intelligent ecosystem
-</p>
-
-
-</div>
-
-
-
-
-<div className="
-flex
-bg-black/30
-rounded-full
-p-1
-mt-8
-">
-
-
-<button
-
-type="button"
-
-onClick={()=>setMethod("username")}
-
-className="
-flex-1
-py-3
-rounded-full
-font-bold
-"
-
->
-
-Username
-
-</button>
-
-
-<button
-
-type="button"
-
-onClick={()=>setMethod("email")}
-
-className="
-flex-1
-py-3
-rounded-full
-font-bold
-"
-
->
-
-Email
-
-</button>
-
-
-</div>
-
-
-
-
-<form
-onSubmit={submit}
-className="mt-6 space-y-5"
->
-
-
-
-{
-method==="username"
-
-?
-
-<FormInput
-
-icon={<User/>}
-
-placeholder="Username"
-
-value={form.username}
-
-onChange={
-e=>update(
-"username",
-e.target.value
-)
-}
-
-/>
-
-
-:
-
-<FormInput
-
-icon={<Mail/>}
-
-placeholder="Email"
-
-value={form.email}
-
-onChange={
-e=>update(
-"email",
-e.target.value
-)
-}
-
-/>
-
-}
-
-
-
-
-
-<div className="
-bg-white
-rounded-xl
-p-3
-text-black
-">
-
-<PhoneInput
-
-international
-
-defaultCountry="KE"
-
-value={form.phone}
-
-onChange={
-value=>update(
-"phone",
-value
-)
-}
-
-/>
-
-</div>
-
-
-
-
-<FormInput
-
-icon={<Lock/>}
-
-type="password"
-
-placeholder="Password"
-
-value={form.password}
-
-onChange={
-e=>update(
-"password",
-e.target.value
-)
-}
-
-/>
-
-
-
-
-{
-errors.server &&
-
-<p className="text-red-400">
-{errors.server}
-</p>
-
-}
-
-
-
-
-<button
-
-className="
-w-full
-py-4
-rounded-full
-bg-cyan-400
-text-black
-font-black
-hover:bg-cyan-300
-transition
-"
-
->
-
-Login
-
-</button>
-
-
-</form>
-
-
-
-<p className="text-center mt-6 text-gray-300">
-
-New to Nyũmba Dragon?
-
-<Link
-
-to="/register"
-
-className="
-ml-2
-text-cyan-300
-font-bold
-"
-
->
-
-Register
-
-</Link>
-
-</p>
-
-
-</motion.div>
-
-
-</div>
-
-
-)
+        } catch (error) {
+
+            console.error(
+                "LOGIN ERROR:",
+                error
+            );
+
+
+            setError(
+                error.response?.data?.message ||
+                "Login failed. Please check your phone number and password."
+            );
+
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+
+    return (
+
+        <AuthLayout
+            title="Welcome Back"
+            subtitle="Login to access your Nyũmba Dragon account"
+        >
+
+            <form
+                onSubmit={handleSubmit}
+                className="space-y-5"
+            >
+
+                {/* ERROR */}
+                {error && (
+
+                    <div
+                        className="
+                            bg-red-50
+                            border
+                            border-red-200
+                            text-red-700
+                            text-sm
+                            rounded-xl
+                            px-4
+                            py-3
+                        "
+                    >
+                        {error}
+                    </div>
+
+                )}
+
+
+                {/* PHONE */}
+                <div>
+
+                    <label
+                        className="
+                            block
+                            text-sm
+                            font-semibold
+                            text-black
+                            mb-2
+                        "
+                    >
+                        Phone Number
+                    </label>
+
+
+                    <input
+                        name="phone"
+                        type="tel"
+                        value={form.phone}
+                        onChange={handleChange}
+                        required
+                        autoComplete="tel"
+                        className="
+                            w-full
+                            border
+                            border-gray-300
+                            rounded-xl
+                            px-4
+                            py-3
+                            text-black
+                            bg-white
+                            placeholder-gray-500
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-green-600
+                            focus:border-green-600
+                        "
+                        placeholder="0712 345 678"
+                    />
+
+                </div>
+
+
+                {/* PASSWORD */}
+                <div>
+
+                    <label
+                        className="
+                            block
+                            text-sm
+                            font-semibold
+                            text-black
+                            mb-2
+                        "
+                    >
+                        Password
+                    </label>
+
+
+                    <div className="relative">
+
+                        <input
+                            name="password"
+                            type={
+                                showPassword
+                                    ? "text"
+                                    : "password"
+                            }
+                            value={form.password}
+                            onChange={handleChange}
+                            required
+                            autoComplete="current-password"
+                            className="
+                                w-full
+                                border
+                                border-gray-300
+                                rounded-xl
+                                px-4
+                                py-3
+                                pr-12
+                                text-black
+                                bg-white
+                                placeholder-gray-500
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-green-600
+                                focus:border-green-600
+                            "
+                            placeholder="Enter your password"
+                        />
+
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setShowPassword(
+                                    !showPassword
+                                )
+                            }
+                            className="
+                                absolute
+                                right-4
+                                top-1/2
+                                -translate-y-1/2
+                                text-gray-600
+                                hover:text-black
+                            "
+                        >
+
+                            {showPassword ? (
+                                <EyeOff size={20} />
+                            ) : (
+                                <Eye size={20} />
+                            )}
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                {/* LOGIN BUTTON */}
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="
+                        w-full
+                        bg-red-600
+                        hover:bg-red-700
+                        disabled:bg-gray-400
+                        text-white
+                        font-semibold
+                        py-3
+                        rounded-xl
+                        transition
+                    "
+                >
+
+                    {loading
+                        ? "Logging in..."
+                        : "Login"
+                    }
+
+                </button>
+
+
+                {/* REGISTER */}
+                <div
+                    className="
+                        text-center
+                        text-sm
+                        text-gray-600
+                    "
+                >
+
+                    Don't have an account?
+
+                    <Link
+                        to="/register"
+                        className="
+                            text-green-700
+                            font-semibold
+                            ml-1
+                            hover:text-green-800
+                        "
+                    >
+                        Create Account
+                    </Link>
+
+                </div>
+
+            </form>
+
+        </AuthLayout>
+
+    );
 
 }

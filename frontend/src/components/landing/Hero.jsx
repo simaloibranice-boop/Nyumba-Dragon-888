@@ -1,125 +1,430 @@
-import GradientText from "../ui/GradientText";
-import GlassCard from "../ui/GlassCard";
+import {motion} from "framer-motion";
+import {Link} from "react-router-dom";
+import {
+ArrowRight,
+ShieldCheck,
+Users,
+Home
+} from "lucide-react";
 
 
 export default function Hero(){
 
+
 return (
 
-<section className="
+<section
+
+className="
+relative
 min-h-screen
-bg-gradient-to-br
-from-[#fffaf0]
-via-white
-to-orange-50
 flex
 items-center
-px-10
-">
+overflow-hidden
+px-6
+py-20
+"
 
-<div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+>
 
 
-<div>
+<div
 
-<h1 className="
-text-6xl
+className="
+absolute
+top-20
+left-20
+w-96
+h-96
+rounded-full
+bg-cyan-400/20
+blur-3xl
+"
+
+/>
+
+
+<div
+
+className="
+absolute
+right-20
+bottom-20
+w-96
+h-96
+rounded-full
+bg-blue-500/20
+blur-3xl
+"
+
+/>
+
+
+
+<div
+
+className="
+relative
+max-w-7xl
+mx-auto
+grid
+lg:grid-cols-2
+gap-16
+items-center
+"
+
+>
+
+
+
+<motion.div
+
+initial={{
+opacity:0,
+x:-40
+}}
+
+animate={{
+opacity:1,
+x:0
+}}
+
+transition={{
+duration:.7
+}}
+
+>
+
+
+<div
+
+className="
+inline-flex
+items-center
+gap-2
+glass
+rounded-full
+px-5
+py-3
+text-cyan-300
+font-bold
+"
+
+>
+
+<ShieldCheck size={20}/>
+
+Trusted African Digital Ecosystem
+
+</div>
+
+
+
+
+
+<h1
+
+className="
+mt-8
+text-5xl
+md:text-7xl
 font-black
 leading-tight
-text-gray-900
+"
+
+>
+
+
+Nyũmba Dragon 888
+
+<br/>
+
+
+<span className="
+text-cyan-300
 ">
 
-The Intelligent
-<br/>
+Intelligent Home Services
 
-<GradientText>
-African Workforce
-</GradientText>
+</span>
 
-<br/>
-
-Operating System
 
 </h1>
 
 
-<p className="
+
+
+<p
+
+className="
 mt-6
 text-xl
-text-gray-600
+text-white/70
 max-w-xl
-">
+leading-relaxed
+"
 
-Nyũmba Dragon 888 connects people,
-services and intelligence into one
-powerful ecosystem.
+>
+
+Kenya's intelligent home and property services ecosystem.
+Connect clients with verified professionals through one powerful digital platform.
 
 </p>
 
 
-<button
+
+
+
+<div
+
 className="
-mt-8
+flex
+flex-wrap
+gap-5
+mt-10
+"
+
+>
+
+
+<Link
+
+to="/register"
+
+className="
+clay-button
 px-8
 py-4
 rounded-full
-bg-black
-text-white
-font-bold
-hover:bg-orange-600
-transition
+font-black
+flex
+items-center
+gap-3
 "
+
 >
-Enter Dragon Platform
-</button>
+
+Get Started
+
+<ArrowRight/>
+
+</Link>
+
+
+
+
+<Link
+
+to="/services"
+
+className="
+glass
+px-8
+py-4
+rounded-full
+font-black
+"
+
+>
+
+Explore Services
+
+</Link>
 
 
 </div>
 
 
 
-<GlassCard className="p-10">
 
-<div className="space-y-6">
+<div
 
-<h3 className="
-text-2xl
-font-bold
+className="
+grid
+grid-cols-3
+gap-5
+mt-12
+"
+
+>
+
+
+<div className="
+glass
+rounded-3xl
+p-5
 ">
-Dragon Intelligence
-</h3>
 
+<Users
+className="text-cyan-300"
+/>
 
-<div>
-<p>Regional Coverage</p>
-<h2 className="text-4xl font-bold">
-47 Counties
-</h2>
-</div>
+<p className="
+text-2xl
+font-black
+mt-3
+">
 
+500+
 
-<div>
-<p>Active Workforce</p>
-<h2 className="text-4xl font-bold">
-12,840
-</h2>
-</div>
+</p>
 
+<p className="text-white/60 text-sm">
 
-<div>
-<p>AI Operations</p>
-<h2 className="text-4xl font-bold">
-ONLINE
-</h2>
-</div>
+Professionals
 
+</p>
 
 </div>
 
-</GlassCard>
+
+
+
+
+<div className="
+glass
+rounded-3xl
+p-5
+">
+
+
+<Home
+className="text-cyan-300"
+/>
+
+
+<p className="
+text-2xl
+font-black
+mt-3
+">
+
+10K+
+
+</p>
+
+
+<p className="text-white/60 text-sm">
+
+Requests
+
+</p>
 
 
 </div>
+
+
+
+
+
+<div className="
+glass
+rounded-3xl
+p-5
+">
+
+
+<ShieldCheck
+className="text-cyan-300"
+/>
+
+
+<p className="
+text-2xl
+font-black
+mt-3
+">
+
+98%
+
+</p>
+
+
+<p className="text-white/60 text-sm">
+
+Satisfaction
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+</motion.div>
+
+
+
+
+
+
+
+<motion.div
+
+initial={{
+opacity:0,
+scale:.8
+}}
+
+animate={{
+opacity:1,
+scale:1
+}}
+
+className="
+glass
+rounded-[60px]
+p-10
+"
+
+>
+
+
+<div
+
+className="
+clay
+rounded-[50px]
+aspect-square
+flex
+items-center
+justify-center
+"
+
+>
+
+
+<div
+
+className="
+text-8xl
+font-black
+text-cyan-300
+"
+
+>
+
+888
+
+</div>
+
+
+</div>
+
+
+
+</motion.div>
+
+
+
+
+
+</div>
+
+
 
 </section>
 

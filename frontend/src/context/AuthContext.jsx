@@ -1,105 +1,176 @@
 import {
     createContext,
-    useState
+    useState,
+    useEffect
 } from "react";
+
+import api from "../services/api";
 
 
 export const AuthContext = createContext();
 
 
+export function AuthProvider({ children }) {
 
-export function AuthProvider({children}){
-
-
-const [token,setToken] = useState(
-    localStorage.getItem("token")
-);
+    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
+    const [loading, setLoading] = useState(true);
 
 
+    // =====================================
+    // RESTORE SESSION
+    // =====================================
 
-const [user,setUser] = useState(
-    JSON.parse(
-        localStorage.getItem("user")
-    )
-);
+    useEffect(() => {
 
+        const savedToken =
+            localStorage.getItem("token");
 
-
-const [loading,setLoading] = useState(false);
-
-
-
-function login(token,user){
+        const savedUser =
+            localStorage.getItem("user");
 
 
-    localStorage.setItem(
-        "token",
-        token
+        if (savedToken && savedUser) {
+
+            try {
+
+                setToken(savedToken);
+
+                setUser(
+                    JSON.parse(savedUser)
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to restore session:",
+                    error
+                );
+
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+
+            }
+
+        }
+
+        setLoading(false);
+
+    }, []);
+
+
+    // =====================================
+    // LOGIN
+    // =====================================
+
+    async function login(phone, password) {
+
+        const response = await api.post(
+            "/auth/login",
+            {
+                phone,
+                password
+            }
+        );
+
+
+        const {
+            token,
+            user
+        } = response.data;
+
+
+        localStorage.setItem(
+            "token",
+            token
+        );
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+        );
+
+
+        setToken(token);
+        setUser(user);
+
+
+        return user;
+
+    }
+
+
+    // =====================================
+    // REGISTER
+    // =====================================
+
+    async function register(formData) {
+
+        const response = await api.post(
+            "/auth/register",
+            formData
+        );
+
+
+        const {
+            token,
+            user
+        } = response.data;
+
+
+        localStorage.setItem(
+            "token",
+            token
+        );
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+        );
+
+
+        setToken(token);
+        setUser(user);
+
+
+        return user;
+
+    }
+
+
+    // =====================================
+    // LOGOUT
+    // =====================================
+
+    function logout() {
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+
+        setToken(null);
+        setUser(null);
+
+    }
+
+
+    return (
+
+        <AuthContext.Provider
+            value={{
+                user,
+                token,
+                login,
+                register,
+                logout,
+                loading
+            }}
+        >
+
+            {children}
+
+        </AuthContext.Provider>
+
     );
-
-
-    localStorage.setItem(
-        "user",
-        JSON.stringify(user)
-    );
-
-
-    setToken(token);
-
-    setUser(user);
-
-}
-
-
-
-function logout(){
-
-
-    localStorage.removeItem(
-        "token"
-    );
-
-
-    localStorage.removeItem(
-        "user"
-    );
-
-
-    setToken(null);
-
-    setUser(null);
-
-}
-
-
-
-return (
-
-<AuthContext.Provider
-
-value={{
-
-token,
-
-user,
-
-loading,
-
-setLoading,
-
-login,
-
-logout
-
-}}
-
->
-
-{children}
-
-</AuthContext.Provider>
-
-)
-
 
 }

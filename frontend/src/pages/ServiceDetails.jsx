@@ -1,171 +1,490 @@
-import { useParams, Link } from "react-router-dom";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  ShieldCheck,
+  MapPin,
+  Wallet,
+} from "lucide-react";
+
+import { Link, useParams } from "react-router-dom";
+
+import DashboardLayout from "../components/dashboard/DashboardLayout";
+
 
 const services = {
+
   electrical: {
-    title: "Electrical Intelligence",
-    description: "Certified electricians for residential and commercial systems.",
+    title: "Electrical Services",
+    description:
+      "Professional electrical installation, repairs and maintenance for homes and businesses.",
     labour: [
       "House wiring",
       "Electrical fault diagnosis",
-      "Socket & switch installation",
+      "Socket and switch installation",
       "Lighting installation",
-      "Distribution board upgrades"
+      "Distribution board upgrades",
     ],
-    price: "KSh 2,500 - KSh 120,000"
+    price: "KES 2,500 - KES 120,000",
   },
 
   plumbing: {
-    title: "Plumbing Network",
-    description: "Professional plumbing solutions and maintenance.",
+    title: "Plumbing Services",
+    description:
+      "Reliable plumbing solutions for homes, businesses and property maintenance.",
     labour: [
       "Pipe installation",
       "Leak repairs",
       "Bathroom plumbing",
       "Kitchen plumbing",
-      "Water tank installation"
+      "Water tank installation",
     ],
-    price: "KSh 1,500 - KSh 80,000"
+    price: "KES 1,500 - KES 80,000",
   },
 
   solar: {
-    title: "Solar Infrastructure",
-    description: "Renewable energy installation and support.",
+    title: "Solar Services",
+    description:
+      "Professional solar installation, maintenance and renewable energy solutions.",
     labour: [
       "Solar panel installation",
       "Battery setup",
       "Inverter installation",
       "Solar maintenance",
-      "System inspection"
+      "System inspection",
     ],
-    price: "KSh 15,000 - KSh 850,000"
+    price: "KES 15,000 - KES 850,000",
   },
 
   mechanical: {
-    title: "Mechanical Experts",
-    description: "Vehicle and equipment repair professionals.",
+    title: "Mechanical Services",
+    description:
+      "Trusted mechanics for vehicles, equipment and general mechanical work.",
     labour: [
       "Engine diagnostics",
       "Brake repairs",
       "Oil service",
       "Suspension repairs",
-      "General maintenance"
+      "General maintenance",
     ],
-    price: "KSh 2,000 - KSh 250,000"
+    price: "KES 2,000 - KES 250,000",
   },
 
   healthcare: {
-    title: "Healthcare Network",
-    description: "Trusted healthcare professionals.",
+    title: "Healthcare Services",
+    description:
+      "Professional home healthcare and support services.",
     labour: [
       "Home nursing",
       "Medical consultation",
       "Patient monitoring",
       "Elderly care",
-      "Health assessments"
+      "Health assessments",
     ],
-    price: "KSh 1,000 - KSh 50,000"
+    price: "KES 1,000 - KES 50,000",
   },
 
   construction: {
-    title: "Construction",
-    description: "Building, renovation and maintenance services.",
+    title: "Construction Services",
+    description:
+      "Construction, renovation, masonry, roofing and finishing services.",
     labour: [
       "House construction",
       "Renovations",
       "Roofing",
       "Painting",
-      "Interior finishing"
+      "Interior finishing",
     ],
-    price: "KSh 10,000 - KSh 5,000,000"
+    price: "KES 10,000 - KES 5,000,000",
   },
 
   cleaning: {
     title: "Cleaning Services",
-    description: "Professional cleaning and facility support.",
+    description:
+      "Professional residential, commercial and deep cleaning services.",
     labour: [
       "Home cleaning",
       "Office cleaning",
       "Deep cleaning",
       "Carpet cleaning",
-      "Post-construction cleaning"
+      "Post-construction cleaning",
     ],
-    price: "KSh 1,000 - KSh 50,000"
-  }
+    price: "KES 1,000 - KES 50,000",
+  },
+
 };
 
+
 export default function ServiceDetails() {
+
   const { slug } = useParams();
 
   const service = services[slug];
 
+
   if (!service) {
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#071A33] to-[#111827] text-white flex items-center justify-center">
-        <h1 className="text-4xl font-black">Service Not Found</h1>
-      </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#071A33] to-[#111827] text-white px-8 py-24">
+      <DashboardLayout role="client">
 
-      <div className="max-w-5xl mx-auto">
-
-        <Link
-          to="/services"
-          className="text-cyan-300 hover:text-cyan-200 font-bold"
+        <div
+          className="
+            min-h-screen
+            bg-[#F5F5F5]
+            flex
+            items-center
+            justify-center
+            p-6
+          "
         >
-          ← Back to Marketplace
-        </Link>
 
-        <h1 className="text-5xl font-black text-cyan-300 mt-6">
-          {service.title}
-        </h1>
+          <div
+            className="
+              bg-white
+              border
+              border-gray-200
+              rounded-3xl
+              p-10
+              text-center
+              max-w-lg
+            "
+          >
 
-        <p className="text-gray-300 mt-5 text-xl">
-          {service.description}
-        </p>
+            <h1 className="text-3xl font-black">
+              Service Not Found
+            </h1>
 
-        <div className="mt-12 bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
-
-          <h2 className="text-3xl font-black text-white">
-            Labour Specifications
-          </h2>
-
-          <ul className="mt-6 space-y-3">
-            {service.labour.map(item => (
-              <li
-                key={item}
-                className="text-gray-300"
-              >
-                • {item}
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-10">
-
-            <h3 className="text-2xl font-black text-cyan-300">
-              Estimated Labour Charges
-            </h3>
-
-            <p className="text-3xl font-black text-yellow-300 mt-3">
-              {service.price}
+            <p className="text-gray-600 mt-3">
+              The service you are looking for does not exist.
             </p>
+
+            <Link
+              to="/services"
+              className="
+                inline-flex
+                items-center
+                gap-2
+                mt-6
+                bg-black
+                text-white
+                px-6
+                py-3
+                rounded-xl
+                font-black
+              "
+            >
+
+              <ArrowLeft size={18} />
+
+              Back to Services
+
+            </Link>
 
           </div>
 
+        </div>
+
+      </DashboardLayout>
+
+    );
+
+  }
+
+
+  return (
+
+    <DashboardLayout role="client">
+
+      <div className="min-h-screen bg-[#F5F5F5] text-black">
+
+        {/* HEADER */}
+
+        <section
+          className="
+            bg-black
+            text-white
+            rounded-3xl
+            p-6
+            md:p-8
+            mb-8
+          "
+        >
+
           <Link
-            to="/client"
-            className="inline-block mt-10 px-8 py-4 rounded-2xl bg-cyan-400 text-black font-black hover:bg-cyan-300 transition"
+            to="/services"
+            className="
+              inline-flex
+              items-center
+              gap-2
+              text-gray-300
+              hover:text-white
+              font-bold
+              mb-6
+            "
           >
-            Request Service
+
+            <ArrowLeft size={18} />
+
+            Back to Services
+
           </Link>
+
+
+          <div
+            className="
+              flex
+              flex-col
+              lg:flex-row
+              lg:items-end
+              lg:justify-between
+              gap-6
+            "
+          >
+
+            <div>
+
+              <div
+                className="
+                  inline-flex
+                  items-center
+                  gap-2
+                  text-green-400
+                  font-black
+                  text-xs
+                  uppercase
+                  tracking-wider
+                "
+              >
+
+                <ShieldCheck size={17} />
+
+                Verified Service Category
+
+              </div>
+
+
+              <h1
+                className="
+                  text-3xl
+                  md:text-5xl
+                  font-black
+                  mt-3
+                "
+              >
+                {service.title}
+              </h1>
+
+
+              <p
+                className="
+                  text-gray-300
+                  mt-4
+                  max-w-3xl
+                  text-lg
+                  font-medium
+                "
+              >
+                {service.description}
+              </p>
+
+            </div>
+
+
+            <div
+              className="
+                bg-white/10
+                rounded-2xl
+                px-5
+                py-4
+                min-w-[220px]
+              "
+            >
+
+              <p className="text-gray-400 text-sm font-bold">
+                Estimated service range
+              </p>
+
+              <p className="text-green-400 text-xl font-black mt-1">
+                {service.price}
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* CONTENT */}
+
+        <div
+          className="
+            grid
+            lg:grid-cols-3
+            gap-6
+            mb-10
+          "
+        >
+
+          <section
+            className="
+              lg:col-span-2
+              bg-white
+              rounded-3xl
+              border
+              border-gray-200
+              p-6
+              md:p-8
+            "
+          >
+
+            <h2 className="text-2xl font-black">
+              What professionals can help with
+            </h2>
+
+
+            <div
+              className="
+                grid
+                sm:grid-cols-2
+                gap-4
+                mt-6
+              "
+            >
+
+              {service.labour.map((item) => (
+
+                <div
+                  key={item}
+                  className="
+                    flex
+                    items-center
+                    gap-3
+                    bg-gray-50
+                    border
+                    border-gray-200
+                    rounded-2xl
+                    p-4
+                  "
+                >
+
+                  <CheckCircle2
+                    size={20}
+                    className="text-green-700 shrink-0"
+                  />
+
+                  <span className="font-bold">
+                    {item}
+                  </span>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </section>
+
+
+          {/* REQUEST CARD */}
+
+          <section
+            className="
+              bg-white
+              rounded-3xl
+              border
+              border-gray-200
+              p-6
+              h-fit
+            "
+          >
+
+            <div
+              className="
+                w-14
+                h-14
+                bg-black
+                text-white
+                rounded-2xl
+                flex
+                items-center
+                justify-center
+              "
+            >
+
+              <Wallet size={24} />
+
+            </div>
+
+
+            <h2 className="text-xl font-black mt-5">
+              Ready to book?
+            </h2>
+
+
+            <p className="text-gray-600 mt-2 font-medium">
+              Submit your project details and let Nyũmba Dragon 888
+              connect you with a suitable professional.
+            </p>
+
+
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+                text-gray-600
+                font-bold
+                text-sm
+                mt-5
+              "
+            >
+
+              <MapPin
+                size={17}
+                className="text-green-700"
+              />
+
+              Service available in your area
+
+            </div>
+
+
+            <Link
+              to={`/client/requests/new?service=${slug}`}
+              className="
+                mt-6
+                w-full
+                bg-red-600
+                hover:bg-red-700
+                text-white
+                font-black
+                px-6
+                py-4
+                rounded-xl
+                flex
+                items-center
+                justify-center
+                gap-2
+                transition
+              "
+            >
+
+              Request Service
+
+              <ArrowRight size={18} />
+
+            </Link>
+
+          </section>
 
         </div>
 
       </div>
 
-    </div>
+    </DashboardLayout>
+
   );
+
 }
