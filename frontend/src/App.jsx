@@ -20,6 +20,9 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 ========================= */
 
 import Home from "./pages/Home";
+import PublicProfessionalProfile from "./pages/PublicProfessionalProfile";
+import Professionals from "./pages/Professionals";
+import PublicPages from "./pages/PublicPages";
 
 
 /* =========================
@@ -82,6 +85,45 @@ export default function App() {
                     element={<Home />}
                 />
 
+                <Route
+                    path="/professionals/:slug"
+                    element={<PublicProfessionalProfile />}
+                />
+
+
+                {/* =====================================
+                    PUBLIC INFORMATION
+                ===================================== */}
+
+                <Route
+                    path="/professionals"
+                    element={<Professionals />}
+                />
+
+                <Route
+                    path="/how-it-works"
+                    element={<PublicPages page="/how-it-works" />}
+                />
+
+                <Route
+                    path="/about"
+                    element={<PublicPages page="/about" />}
+                />
+
+                <Route
+                    path="/careers"
+                    element={<PublicPages page="/careers" />}
+                />
+
+                <Route
+                    path="/partners"
+                    element={<PublicPages page="/partners" />}
+                />
+
+                <Route
+                    path="/contact"
+                    element={<PublicPages page="/contact" />}
+                />
 
                 {/* =====================================
                     AUTHENTICATION
@@ -104,11 +146,7 @@ export default function App() {
 
                 <Route
                     path="/services"
-                    element={
-                        <ProtectedRoute>
-                            <Services />
-                        </ProtectedRoute>
-                    }
+                    element={<Services />}
                 />
 
                 <Route
