@@ -70,6 +70,20 @@ const services = {
     price: "KES 2,000 - KES 250,000",
   },
 
+  catering: {
+    title: "Catering Services",
+    description:
+      "Professional catering and food service support for homes, events and corporate functions.",
+    labour: [
+      "Event catering",
+      "Home catering",
+      "Corporate catering",
+      "Food preparation",
+      "Buffet and outdoor catering",
+    ],
+    price: "KES 5,000 - KES 150,000",
+  },
+
   healthcare: {
     title: "Healthcare Services",
     description:
@@ -98,6 +112,20 @@ const services = {
     price: "KES 10,000 - KES 5,000,000",
   },
 
+  security: {
+    title: "Security Services",
+    description:
+      "Professional security systems, CCTV installation, access control and property protection solutions.",
+    labour: [
+      "CCTV installation",
+      "Security system installation",
+      "Access control",
+      "Alarm system installation",
+      "Property security assessment",
+    ],
+    price: "KES 5,000 - KES 250,000",
+  },
+
   cleaning: {
     title: "Cleaning Services",
     description:
@@ -113,6 +141,9 @@ const services = {
   },
 
 };
+
+// Backward-compatible slug used by older/home dashboard links.
+services.electrician = services.electrical;
 
 
 export default function ServiceDetails() {
