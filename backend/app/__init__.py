@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,24 +18,50 @@ def create_app():
     # DATABASE CONFIGURATION
     # =====================================
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///nyumba_dragon.db"
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        # Compatibility with older PostgreSQL URLs
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace(
+                "postgres://",
+                "postgresql://",
+                1
+            )
+
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
+    else:
+        # Local development
+        app.config["SQLALCHEMY_DATABASE_URI"] = (
+            "sqlite:///nyumba_dragon.db"
+        )
+
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # =====================================
     # JWT CONFIGURATION
     # =====================================
 
-    app.config["JWT_SECRET_KEY"] = "dragon-secret-key-change-this-later"
+    app.config["JWT_SECRET_KEY"] = os.getenv(
+        "JWT_SECRET_KEY",
+        "dragon-secret-key-change-this-locally"
+    )
 
     # =====================================
     # CORS CONFIGURATION
     # =====================================
 
+    allowed_origins = os.getenv(
+        "FRONTEND_URL",
+        "*"
+    )
+
     CORS(
         app,
         resources={
             r"/api/*": {
-                "origins": "*"
+                "origins": allowed_origins
             }
         }
     )
