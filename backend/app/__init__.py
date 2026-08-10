@@ -177,6 +177,17 @@ def create_app():
         }, 401
 
     # =====================================
+    # HEALTH CHECK
+    # =====================================
+
+    @app.get("/api/health")
+    def health_check():
+        return {
+            "status": "ok",
+            "service": "Nyũmba Dragon 888 API"
+        }, 200
+
+    # =====================================
     # RETURN APPLICATION
     # =====================================
 
