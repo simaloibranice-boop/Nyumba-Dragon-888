@@ -85,44 +85,88 @@ export default function App() {
                     element={<Home />}
                 />
 
+
+                {/* =====================================
+                    AUTHENTICATION
+                ===================================== */}
+
                 <Route
-                    path="/professionals/:slug"
-                    element={<PublicProfessionalProfile />}
+                    path="/login"
+                    element={<Login />}
+                />
+
+                <Route
+                    path="/register"
+                    element={<Register />}
                 />
 
 
                 {/* =====================================
-                    PUBLIC INFORMATION
+                    PROTECTED PUBLIC PLATFORM
+                    LOGIN / REGISTER REQUIRED
                 ===================================== */}
 
                 <Route
                     path="/professionals"
-                    element={<Professionals />}
+                    element={
+                        <ProtectedRoute>
+                            <Professionals />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/professionals/:slug"
+                    element={
+                        <ProtectedRoute>
+                            <PublicProfessionalProfile />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
                     path="/how-it-works"
-                    element={<PublicPages page="/how-it-works" />}
+                    element={
+                        <ProtectedRoute>
+                            <PublicPages page="/how-it-works" />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
                     path="/about"
-                    element={<PublicPages page="/about" />}
+                    element={
+                        <ProtectedRoute>
+                            <PublicPages page="/about" />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
                     path="/careers"
-                    element={<PublicPages page="/careers" />}
+                    element={
+                        <ProtectedRoute>
+                            <PublicPages page="/careers" />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
                     path="/partners"
-                    element={<PublicPages page="/partners" />}
+                    element={
+                        <ProtectedRoute>
+                            <PublicPages page="/partners" />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
                     path="/contact"
-                    element={<PublicPages page="/contact" />}
+                    element={
+                        <ProtectedRoute>
+                            <PublicPages page="/contact" />
+                        </ProtectedRoute>
+                    }
                 />
 
                 {/* =====================================
@@ -146,7 +190,11 @@ export default function App() {
 
                 <Route
                     path="/services"
-                    element={<Services />}
+                    element={
+                        <ProtectedRoute>
+                            <Services />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
