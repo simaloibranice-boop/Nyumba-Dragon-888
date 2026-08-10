@@ -269,24 +269,32 @@ def accept_job(id):
 @jwt_required()
 def complete_job(id):
 
+    user_id = int(get_jwt_identity())
 
     job = ServiceRequest.query.get_or_404(id)
 
+    # Only the assigned technician can complete the job
+    if job.technician_id != user_id:
+
+        return jsonify({
+            "message": "You are not assigned to this job"
+        }), 403
+
+    # Prevent completing an already completed job
+    if job.status == "COMPLETED":
+
+        return jsonify({
+            "message": "This job is already completed"
+        }), 409
 
     job.status = "COMPLETED"
 
-
     db.session.commit()
 
-
-
     return jsonify({
-
-        "message":
-        "Job completed successfully"
-
-    })
-
+        "message": "Job completed successfully",
+        "job": job.to_dict()
+    }), 200
 
 
 @technician_bp.route(
@@ -296,41 +304,39 @@ def complete_job(id):
 @jwt_required()
 def get_earnings():
 
+    user_id = int(get_jwt_identity())
 
-    user_id = get_jwt_identity()
+    from app.models.wallet import Wallet
 
+    wallet = Wallet.query.filter_by(
+        user_id=user_id
+    ).first()
 
+    if not wallet:
+
+        return jsonify({
+            "balance": 0.0,
+            "pending_balance": 0.0,
+            "currency": "KES",
+            "completed_jobs": ServiceRequest.query.filter_by(
+                technician_id=user_id,
+                status="COMPLETED"
+            ).count()
+        }), 200
 
     completed_jobs = ServiceRequest.query.filter_by(
         technician_id=user_id,
         status="COMPLETED"
-    ).all()
-
-
-
-    total_earnings = sum(
-
-        job.price or 0
-
-        for job in completed_jobs
-
-    )
-
-
+    ).count()
 
     return jsonify({
-
-        "completed_jobs":
-            len(completed_jobs),
-
-        "total_earnings":
-            total_earnings,
-
-        "currency":
-            "KES"
-
-    })
-
+        "balance": float(wallet.balance or 0.0),
+        "pending_balance": float(
+            wallet.pending_balance or 0.0
+        ),
+        "currency": wallet.currency,
+        "completed_jobs": completed_jobs
+    }), 200
 
 
 @technician_bp.route(

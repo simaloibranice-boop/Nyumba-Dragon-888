@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from flask import Flask, request
 from flask_cors import CORS
 
@@ -66,6 +70,7 @@ def create_app():
     from app.routes.technician import technician_bp
     from app.routes.admin import admin_bp
     from app.routes.payment import payment_bp
+    from app.routes.wallet import wallet_bp
 
     # =====================================
     # REGISTER BLUEPRINTS
@@ -76,6 +81,7 @@ def create_app():
     app.register_blueprint(technician_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(payment_bp)
+    app.register_blueprint(wallet_bp)
 
     # =====================================
     # JWT ERROR HANDLERS

@@ -46,6 +46,35 @@ class Payment(db.Model):
         nullable=True
     )
 
+    # =====================================
+    # M-PESA DARaja TRACKING FIELDS
+    # =====================================
+
+    merchant_request_id = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    checkout_request_id = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    result_code = db.Column(
+        db.Integer,
+        nullable=True
+    )
+
+    result_description = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
+    mpesa_receipt_number = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
     customer_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id"),
@@ -98,6 +127,25 @@ class Payment(db.Model):
 
             "phone_number":
                 self.phone_number,
+
+            # =====================================
+            # M-PESA DARaja RESPONSE DATA
+            # =====================================
+
+            "merchant_request_id":
+                self.merchant_request_id,
+
+            "checkout_request_id":
+                self.checkout_request_id,
+
+            "result_code":
+                self.result_code,
+
+            "result_description":
+                self.result_description,
+
+            "mpesa_receipt_number":
+                self.mpesa_receipt_number,
 
             "customer_id":
                 self.customer_id,

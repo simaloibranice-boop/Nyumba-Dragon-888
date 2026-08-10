@@ -131,3 +131,29 @@ def get_requests():
             for item in requests
         ]
     ), 200
+
+
+# =====================================
+# GET SINGLE CLIENT REQUEST
+# =====================================
+
+@client_bp.route("/requests/<int:request_id>", methods=["GET"])
+@jwt_required()
+def get_request(request_id):
+
+    user_id = int(get_jwt_identity())
+
+    service_request = ServiceRequest.query.filter_by(
+        id=request_id,
+        customer_id=user_id
+    ).first()
+
+    if service_request is None:
+
+        return jsonify({
+            "message": "Service request not found"
+        }), 404
+
+    return jsonify({
+        "request": service_request.to_dict()
+    }), 200

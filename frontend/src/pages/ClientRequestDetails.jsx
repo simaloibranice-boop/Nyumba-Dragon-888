@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   ArrowLeft,
   MapPin,
@@ -7,54 +9,240 @@ import {
   Clock3,
   ShieldCheck,
   Phone,
+  RefreshCw,
+  AlertCircle,
+  CreditCard,
 } from "lucide-react";
 
-import { Link, useParams } from "react-router-dom";
+import {
+  Link,
+  useParams,
+} from "react-router-dom";
 
 import DashboardLayout from "../components/dashboard/DashboardLayout";
 
-
-const requestData = {
-  1: {
-    title: "Electrical Installation",
-    description:
-      "Complete house wiring and electrical installation.",
-    location: "Westlands, Nairobi",
-    date: "08 Aug 2026",
-    price: "KES 8,000",
-    status: "In Progress",
-    technician: "Verified Electrician",
-  },
-
-  2: {
-    title: "Plumbing Repair",
-    description:
-      "Kitchen sink and bathroom pipe repair.",
-    location: "Kilimani, Nairobi",
-    date: "07 Aug 2026",
-    price: "KES 4,500",
-    status: "Pending",
-    technician: "Waiting for assignment",
-  },
-
-  3: {
-    title: "CCTV Installation",
-    description:
-      "Installation of CCTV cameras around the property.",
-    location: "Kasarani, Nairobi",
-    date: "04 Aug 2026",
-    price: "KES 12,000",
-    status: "Completed",
-    technician: "Verified Security Technician",
-  },
-};
+import {
+  getClientRequest,
+} from "../services/clientService";
 
 
 export default function ClientRequestDetails() {
 
   const { id } = useParams();
 
-  const request = requestData[id] || requestData[1];
+  const [request, setRequest] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
+
+  const loadRequest = async () => {
+
+    try {
+
+      setLoading(true);
+
+      setError("");
+
+      const data = await getClientRequest(id);
+
+      setRequest(
+        data.request || data
+      );
+
+    } catch (err) {
+
+      console.error(
+        "Failed to load request:",
+        err
+      );
+
+      setError(
+        err.response?.data?.message ||
+        "Failed to load service request."
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+
+  useEffect(() => {
+
+    loadRequest();
+
+  }, [id]);
+
+
+  const formatAmount = (value) => {
+
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
+
+      return "Price pending";
+
+    }
+
+    return `KES ${Number(value).toLocaleString()}`;
+
+  };
+
+
+  const formatDate = (value) => {
+
+    if (!value) {
+
+      return "Date unavailable";
+
+    }
+
+    try {
+
+      return new Date(value).toLocaleDateString(
+        "en-KE",
+        {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        }
+      );
+
+    } catch {
+
+      return value;
+
+    }
+
+  };
+
+
+  const normalizedStatus =
+    String(request?.status || "")
+      .toUpperCase();
+
+
+  const isPending =
+    normalizedStatus === "PENDING";
+
+
+  const isAccepted =
+    normalizedStatus === "ACCEPTED";
+
+
+  const isInProgress =
+    normalizedStatus === "IN PROGRESS";
+
+
+  const isCompleted =
+    normalizedStatus === "COMPLETED";
+
+
+  if (loading) {
+
+    return (
+
+      <DashboardLayout role="client">
+
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+
+          <div className="text-center">
+
+            <RefreshCw
+              size={34}
+              className="animate-spin mx-auto mb-4"
+            />
+
+            <p className="font-bold text-gray-700">
+              Loading request...
+            </p>
+
+          </div>
+
+        </div>
+
+      </DashboardLayout>
+
+    );
+
+  }
+
+
+  if (error || !request) {
+
+    return (
+
+      <DashboardLayout role="client">
+
+        <div className="min-h-screen bg-gray-100 p-6">
+
+          <div className="max-w-3xl mx-auto">
+
+            <Link
+              to="/client/requests"
+              className="
+                inline-flex
+                items-center
+                gap-2
+                font-bold
+                mb-6
+                hover:text-green-700
+              "
+            >
+
+              <ArrowLeft size={18} />
+
+              Back to Requests
+
+            </Link>
+
+
+            <div
+              className="
+                bg-red-50
+                border
+                border-red-200
+                rounded-2xl
+                p-6
+                text-red-700
+                flex
+                items-start
+                gap-3
+              "
+            >
+
+              <AlertCircle size={22} />
+
+              <div>
+
+                <h2 className="font-black text-lg">
+                  Unable to load request
+                </h2>
+
+                <p className="mt-1">
+                  {error || "Request not found."}
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </DashboardLayout>
+
+    );
+
+  }
 
 
   return (
@@ -64,7 +252,7 @@ export default function ClientRequestDetails() {
       <div className="min-h-screen bg-gray-100 text-black">
 
 
-        {/* TOP HEADER */}
+        {/* HEADER */}
 
         <section
           className="
@@ -97,29 +285,48 @@ export default function ClientRequestDetails() {
           </Link>
 
 
-          <h1
+          <div
             className="
-              text-3xl
-              md:text-4xl
-              font-black
+              flex
+              flex-col
+              md:flex-row
+              md:items-center
+              md:justify-between
+              gap-5
             "
           >
-            {request.title}
-          </h1>
+
+            <div>
+
+              <p className="text-green-400 text-sm font-black uppercase">
+                Service Request #{request.id}
+              </p>
+
+              <h1
+                className="
+                  text-3xl
+                  md:text-4xl
+                  font-black
+                  mt-2
+                "
+              >
+                {request.title || "Service Request"}
+              </h1>
+
+              <p className="text-gray-300 mt-2 font-medium">
+                Submitted {formatDate(request.created_at)}
+              </p>
+
+            </div>
 
 
-          <p
-            className="
-              text-gray-300
-              mt-2
-              font-medium
-            "
-          >
-            Request #{id}
-          </p>
+            <StatusBadge
+              status={request.status}
+            />
+
+          </div>
 
         </section>
-
 
 
         {/* MAIN GRID */}
@@ -147,31 +354,15 @@ export default function ClientRequestDetails() {
             "
           >
 
-            <div
+            <h2
               className="
-                flex
-                flex-col
-                sm:flex-row
-                sm:items-center
-                sm:justify-between
-                gap-4
-                mb-8
+                text-2xl
+                font-black
+                mb-5
               "
             >
-
-              <h2
-                className="
-                  text-2xl
-                  font-black
-                "
-              >
-                Request Details
-              </h2>
-
-
-              <StatusBadge status={request.status} />
-
-            </div>
+              Request Details
+            </h2>
 
 
             <p
@@ -182,7 +373,8 @@ export default function ClientRequestDetails() {
                 leading-relaxed
               "
             >
-              {request.description}
+              {request.description ||
+                "No description provided."}
             </p>
 
 
@@ -198,29 +390,39 @@ export default function ClientRequestDetails() {
               <InfoCard
                 icon={<MapPin />}
                 label="Service Location"
-                value={request.location}
+                value={
+                  request.location ||
+                  "Not provided"
+                }
               />
 
               <InfoCard
                 icon={<CalendarDays />}
                 label="Request Date"
-                value={request.date}
+                value={formatDate(
+                  request.created_at
+                )}
               />
 
               <InfoCard
                 icon={<Wallet />}
-                label="Estimated Price"
-                value={request.price}
+                label="Service Price"
+                value={formatAmount(
+                  request.price
+                )}
               />
 
               <InfoCard
                 icon={<ShieldCheck />}
                 label="Professional"
-                value={request.technician}
+                value={
+                  request.technician_id
+                    ? `Technician #${request.technician_id}`
+                    : "Waiting for assignment"
+                }
               />
 
             </div>
-
 
 
             {/* PROGRESS */}
@@ -246,22 +448,32 @@ export default function ClientRequestDetails() {
                   completed
                 />
 
+
                 <ProgressItem
                   title="Professional Assignment"
                   description="A verified professional is assigned to your request."
-                  completed={request.status !== "Pending"}
+                  completed={
+                    !isPending
+                  }
                 />
+
 
                 <ProgressItem
                   title="Work In Progress"
                   description="The professional is working on your project."
-                  completed={request.status === "In Progress" || request.status === "Completed"}
+                  completed={
+                    isInProgress ||
+                    isCompleted
+                  }
                 />
+
 
                 <ProgressItem
                   title="Service Completed"
                   description="Your service has been completed."
-                  completed={request.status === "Completed"}
+                  completed={
+                    isCompleted
+                  }
                 />
 
               </div>
@@ -269,7 +481,6 @@ export default function ClientRequestDetails() {
             </div>
 
           </section>
-
 
 
           {/* ACTION PANEL */}
@@ -299,13 +510,49 @@ export default function ClientRequestDetails() {
             <div className="space-y-3">
 
 
-              {request.status === "In Progress" && (
+              {/* PAYMENT */}
+
+              {(isAccepted ||
+                isInProgress) && (
 
                 <button
                   className="
                     w-full
                     bg-green-700
                     hover:bg-green-800
+                    text-white
+                    font-black
+                    py-4
+                    rounded-xl
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
+                    transition
+                  "
+                >
+
+                  <CreditCard size={19} />
+
+                  Pay for Service
+
+                </button>
+
+              )}
+
+
+              {/* CONTACT */}
+
+              {(
+                isAccepted ||
+                isInProgress
+              ) && (
+
+                <button
+                  className="
+                    w-full
+                    bg-black
+                    hover:bg-gray-800
                     text-white
                     font-black
                     py-4
@@ -327,123 +574,110 @@ export default function ClientRequestDetails() {
               )}
 
 
-              {request.status === "Pending" && (
+              {/* PENDING */}
 
-                <button
+              {isPending && (
+
+                <div
                   className="
-                    w-full
-                    bg-red-600
-                    hover:bg-red-700
-                    text-white
-                    font-black
-                    py-4
+                    bg-yellow-50
+                    border
+                    border-yellow-200
+                    text-yellow-800
                     rounded-xl
-                    transition
+                    p-4
+                    flex
+                    items-start
+                    gap-3
                   "
                 >
 
-                  Cancel Request
+                  <Clock3
+                    size={20}
+                    className="shrink-0 mt-0.5"
+                  />
 
-                </button>
+                  <div>
+
+                    <p className="font-black">
+                      Waiting for assignment
+                    </p>
+
+                    <p className="text-sm mt-1">
+                      A verified professional will be assigned to your request.
+                    </p>
+
+                  </div>
+
+                </div>
 
               )}
 
 
-              {request.status === "Completed" && (
+              {/* COMPLETED */}
 
-                <button
+              {isCompleted && (
+
+                <div
                   className="
-                    w-full
-                    bg-black
-                    hover:bg-green-700
-                    text-white
-                    font-black
-                    py-4
+                    bg-green-50
+                    border
+                    border-green-200
+                    text-green-800
                     rounded-xl
-                    transition
+                    p-4
+                    flex
+                    items-start
+                    gap-3
                   "
                 >
 
-                  Leave a Review
+                  <CheckCircle2
+                    size={20}
+                    className="shrink-0 mt-0.5"
+                  />
 
-                </button>
+                  <div>
+
+                    <p className="font-black">
+                      Service Completed
+                    </p>
+
+                    <p className="text-sm mt-1">
+                      This service request has been completed.
+                    </p>
+
+                  </div>
+
+                </div>
 
               )}
-
-
-              <Link
-                to="/services"
-                className="
-                  w-full
-                  border
-                  border-black
-                  hover:bg-black
-                  hover:text-white
-                  text-black
-                  font-black
-                  py-4
-                  rounded-xl
-                  flex
-                  items-center
-                  justify-center
-                  transition
-                "
-              >
-
-                Book Another Service
-
-              </Link>
 
             </div>
 
 
-            {/* TRUST */}
+            {/* PAYMENT SUMMARY */}
 
             <div
               className="
-                bg-gray-100
-                rounded-2xl
-                p-5
+                border-t
+                border-gray-200
                 mt-6
+                pt-6
               "
             >
 
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-3
-                "
-              >
+              <p className="text-xs text-gray-500 font-black uppercase">
+                Service Amount
+              </p>
 
-                <ShieldCheck
-                  className="text-green-700"
-                  size={23}
-                />
+              <p className="text-3xl font-black mt-2">
+                {formatAmount(request.price)}
+              </p>
 
-                <div>
-
-                  <p
-                    className="
-                      font-black
-                    "
-                  >
-                    Nyũmba Verified
-                  </p>
-
-                  <p
-                    className="
-                      text-sm
-                      text-gray-600
-                      font-medium
-                    "
-                  >
-                    Your service is protected by our platform.
-                  </p>
-
-                </div>
-
-              </div>
+              <p className="text-sm text-gray-500 mt-2">
+                Secure payment will be processed through Nyũmba Dragon 888.
+              </p>
 
             </div>
 
@@ -456,26 +690,54 @@ export default function ClientRequestDetails() {
     </DashboardLayout>
 
   );
+
 }
 
 
+function StatusBadge({
+  status,
+}) {
 
-/* STATUS */
+  const normalized =
+    String(status || "").toUpperCase();
 
-function StatusBadge({ status }) {
 
-  const styles = {
+  let classes =
+    "bg-yellow-100 text-yellow-700";
 
-    Pending:
-      "bg-yellow-100 text-yellow-800",
 
-    "In Progress":
-      "bg-green-100 text-green-800",
+  if (
+    normalized === "ACCEPTED" ||
+    normalized === "IN PROGRESS"
+  ) {
 
-    Completed:
-      "bg-gray-200 text-black",
+    classes =
+      "bg-green-100 text-green-700";
 
-  };
+  }
+
+
+  if (normalized === "COMPLETED") {
+
+    classes =
+      "bg-green-200 text-green-800";
+
+  }
+
+
+  if (normalized === "CANCELLED") {
+
+    classes =
+      "bg-red-100 text-red-700";
+
+  }
+
+
+  const label =
+    normalized === "IN PROGRESS"
+      ? "In Progress"
+      : normalized.charAt(0) +
+        normalized.slice(1).toLowerCase();
 
 
   return (
@@ -488,19 +750,22 @@ function StatusBadge({ status }) {
         px-4
         py-2
         rounded-full
-        font-black
         text-sm
-        ${styles[status]}
+        font-black
+        ${classes}
       `}
     >
 
-      {status === "Completed" ? (
-        <CheckCircle2 size={17} />
-      ) : (
-        <Clock3 size={17} />
-      )}
+      <span
+        className="
+          w-2
+          h-2
+          rounded-full
+          bg-current
+        "
+      />
 
-      {status}
+      {label}
 
     </span>
 
@@ -508,9 +773,6 @@ function StatusBadge({ status }) {
 
 }
 
-
-
-/* INFO CARD */
 
 function InfoCard({
   icon,
@@ -532,40 +794,31 @@ function InfoCard({
 
       <div
         className="
-          w-10
-          h-10
-          rounded-xl
-          bg-black
-          text-white
           flex
           items-center
-          justify-center
-          mb-4
+          gap-3
+          mb-3
+          text-green-700
         "
       >
 
         {icon}
 
+        <span
+          className="
+            text-xs
+            font-black
+            uppercase
+            text-gray-500
+          "
+        >
+          {label}
+        </span>
+
       </div>
 
 
-      <p
-        className="
-          text-sm
-          text-gray-600
-          font-bold
-        "
-      >
-        {label}
-      </p>
-
-
-      <p
-        className="
-          font-black
-          mt-1
-        "
-      >
+      <p className="font-black text-gray-900">
         {value}
       </p>
 
@@ -576,9 +829,6 @@ function InfoCard({
 }
 
 
-
-/* PROGRESS */
-
 function ProgressItem({
   title,
   description,
@@ -587,18 +837,12 @@ function ProgressItem({
 
   return (
 
-    <div
-      className="
-        flex
-        items-start
-        gap-4
-      "
-    >
+    <div className="flex gap-4">
 
       <div
         className={`
-          w-9
-          h-9
+          w-10
+          h-10
           rounded-full
           flex
           items-center
@@ -606,36 +850,32 @@ function ProgressItem({
           shrink-0
           ${
             completed
-              ? "bg-green-700 text-white"
-              : "bg-gray-200 text-gray-500"
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100 text-gray-400"
           }
         `}
       >
 
-        <CheckCircle2 size={18} />
+        {completed ? (
+
+          <CheckCircle2 size={21} />
+
+        ) : (
+
+          <Clock3 size={21} />
+
+        )}
 
       </div>
 
 
       <div>
 
-        <h4
-          className="
-            font-black
-          "
-        >
+        <p className="font-black text-gray-900">
           {title}
-        </h4>
+        </p>
 
-
-        <p
-          className="
-            text-sm
-            text-gray-600
-            font-medium
-            mt-1
-          "
-        >
+        <p className="text-sm text-gray-500 mt-1">
           {description}
         </p>
 

@@ -1,16 +1,30 @@
 import {
-  BrowserRouter,
-  Routes,
-  Route
+    BrowserRouter,
+    Routes,
+    Route
 } from "react-router-dom";
 
+
 /* =========================
-   PUBLIC PAGES
+   AUTH
+========================= */
+
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+
+
+/* =========================
+   PUBLIC
 ========================= */
 
 import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+
+
+/* =========================
+   MAIN PLATFORM
+========================= */
 
 import Company from "./pages/Company";
 import Solutions from "./pages/Solutions";
@@ -20,7 +34,7 @@ import ServiceDetails from "./pages/ServiceDetails";
 
 
 /* =========================
-   CLIENT PAGES
+   CLIENT
 ========================= */
 
 import ClientDashboard from "./pages/ClientDashboard";
@@ -32,7 +46,7 @@ import ClientSettings from "./pages/ClientSettings";
 
 
 /* =========================
-   TECHNICIAN PAGES
+   TECHNICIAN
 ========================= */
 
 import TechnicianDashboard from "./pages/TechnicianDashboard";
@@ -41,6 +55,7 @@ import TechnicianEarnings from "./pages/TechnicianEarnings";
 import TechnicianAnalytics from "./pages/TechnicianAnalytics";
 import TechnicianProfile from "./pages/TechnicianProfile";
 import TechnicianSettings from "./pages/TechnicianSettings";
+import TechnicianWallet from "./pages/TechnicianWallet";
 
 
 /* =========================
@@ -52,156 +67,239 @@ import AdminDashboard from "./pages/AdminDashboard";
 
 export default function App() {
 
-  return (
+    return (
 
-    <BrowserRouter>
+        <BrowserRouter>
 
-      <Routes>
+            <Routes>
 
+                {/* =====================================
+                    PUBLIC — HOME ONLY
+                ===================================== */}
 
-        {/* =====================================
-            MAIN WEBSITE
-        ===================================== */}
-
-        <Route
-          path="/"
-          element={<Home />}
-        />
-
-        <Route
-          path="/services"
-          element={<Services />}
-        />
-
-        <Route
-          path="/services/:slug"
-          element={<ServiceDetails />}
-        />
-
-        <Route
-          path="/company"
-          element={<Company />}
-        />
-
-        <Route
-          path="/solutions"
-          element={<Solutions />}
-        />
-
-        <Route
-          path="/investors"
-          element={<Investors />}
-        />
+                <Route
+                    path="/"
+                    element={<Home />}
+                />
 
 
-        {/* =====================================
-            AUTHENTICATION
-        ===================================== */}
+                {/* =====================================
+                    AUTHENTICATION
+                ===================================== */}
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
 
-        <Route
-          path="/register"
-          element={<Register />}
-        />
-
-
-        {/* =====================================
-            CLIENT DASHBOARD
-        ===================================== */}
-
-        <Route
-          path="/client/dashboard"
-          element={<ClientDashboard />}
-        />
-
-        <Route
-          path="/client/requests"
-          element={<ClientRequests />}
-        />
-
-        <Route
-          path="/client/requests/new"
-          element={<NewServiceRequest />}
-        />
-
-        <Route
-          path="/client/requests/:id"
-          element={<ClientRequestDetails />}
-        />
-
-        <Route
-          path="/client/profile"
-          element={<ClientProfile />}
-        />
-
-        <Route
-          path="/client/settings"
-          element={<ClientSettings />}
-        />
+                <Route
+                    path="/register"
+                    element={<Register />}
+                />
 
 
-        {/* =====================================
-            TECHNICIAN DASHBOARD
-        ===================================== */}
+                {/* =====================================
+                    PROTECTED PLATFORM
+                ===================================== */}
 
-        <Route
-          path="/technician/dashboard"
-          element={<TechnicianDashboard />}
-        />
+                <Route
+                    path="/services"
+                    element={
+                        <ProtectedRoute>
+                            <Services />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/technician/jobs"
-          element={<TechnicianJobs />}
-        />
+                <Route
+                    path="/services/:slug"
+                    element={
+                        <ProtectedRoute>
+                            <ServiceDetails />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/technician/earnings"
-          element={<TechnicianEarnings />}
-        />
+                <Route
+                    path="/company"
+                    element={
+                        <ProtectedRoute>
+                            <Company />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/technician/analytics"
-          element={<TechnicianAnalytics />}
-        />
+                <Route
+                    path="/solutions"
+                    element={
+                        <ProtectedRoute>
+                            <Solutions />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/technician/profile"
-          element={<TechnicianProfile />}
-        />
-
-        <Route
-          path="/technician/settings"
-          element={<TechnicianSettings />}
-        />
-
-
-        {/* =====================================
-            ADMIN
-        ===================================== */}
-
-        <Route
-          path="/admin/dashboard"
-          element={<AdminDashboard />}
-        />
+                <Route
+                    path="/investors"
+                    element={
+                        <ProtectedRoute>
+                            <Investors />
+                        </ProtectedRoute>
+                    }
+                />
 
 
-        {/* =====================================
-            FALLBACK
-        ===================================== */}
+                {/* =====================================
+                    CLIENT
+                ===================================== */}
 
-        <Route
-          path="*"
-          element={<Home />}
-        />
+                <Route
+                    path="/client/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <ClientDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-      </Routes>
+                <Route
+                    path="/client/requests"
+                    element={
+                        <ProtectedRoute>
+                            <ClientRequests />
+                        </ProtectedRoute>
+                    }
+                />
 
-    </BrowserRouter>
+                <Route
+                    path="/client/requests/new"
+                    element={
+                        <ProtectedRoute>
+                            <NewServiceRequest />
+                        </ProtectedRoute>
+                    }
+                />
 
-  );
+                <Route
+                    path="/client/requests/:id"
+                    element={
+                        <ProtectedRoute>
+                            <ClientRequestDetails />
+                        </ProtectedRoute>
+                    }
+                />
 
+                <Route
+                    path="/client/profile"
+                    element={
+                        <ProtectedRoute>
+                            <ClientProfile />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/client/settings"
+                    element={
+                        <ProtectedRoute>
+                            <ClientSettings />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* =====================================
+                    TECHNICIAN
+                ===================================== */}
+
+                <Route
+                    path="/technician/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <TechnicianDashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/technician/jobs"
+                    element={
+                        <ProtectedRoute>
+                            <TechnicianJobs />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/technician/earnings"
+                    element={
+                        <ProtectedRoute>
+                            <TechnicianEarnings />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/technician/wallet"
+                    element={
+                        <ProtectedRoute>
+                            <TechnicianWallet />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/technician/analytics"
+                    element={
+                        <ProtectedRoute>
+                            <TechnicianAnalytics />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/technician/profile"
+                    element={
+                        <ProtectedRoute>
+                            <TechnicianProfile />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/technician/settings"
+                    element={
+                        <ProtectedRoute>
+                            <TechnicianSettings />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* =====================================
+                    ADMIN
+                ===================================== */}
+
+                <Route
+                    path="/admin/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <AdminDashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* =====================================
+                    UNKNOWN ROUTES
+                ===================================== */}
+
+                <Route
+                    path="*"
+                    element={<Home />}
+                />
+
+            </Routes>
+
+        </BrowserRouter>
+    );
 }
