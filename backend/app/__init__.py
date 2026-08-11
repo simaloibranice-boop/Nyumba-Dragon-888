@@ -52,16 +52,39 @@ def create_app():
     # CORS CONFIGURATION
     # =====================================
 
-    allowed_origins = os.getenv(
+    frontend_url = os.getenv(
         "FRONTEND_URL",
-        "*"
+        "https://nyumbadragon888.netlify.app"
     )
+
+    allowed_origins = [
+        origin.strip()
+        for origin in frontend_url.split(",")
+        if origin.strip()
+    ]
+
+    # Always allow the local Vite frontend during development
+    if "http://localhost:5173" not in allowed_origins:
+        allowed_origins.append("http://localhost:5173")
 
     CORS(
         app,
         resources={
             r"/api/*": {
-                "origins": allowed_origins
+                "origins": allowed_origins,
+                "methods": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "PATCH",
+                    "DELETE",
+                    "OPTIONS"
+                ],
+                "allow_headers": [
+                    "Content-Type",
+                    "Authorization"
+                ],
+                "supports_credentials": True
             }
         }
     )
