@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from flask import Flask, request
+from flask import Flask
 from flask_cors import CORS
 
 from app.extensions import db, jwt, migrate
@@ -63,7 +63,7 @@ def create_app():
         if origin.strip()
     ]
 
-    # Always allow the local Vite frontend during development
+    # Always allow local Vite frontend during development
     if "http://localhost:5173" not in allowed_origins:
         allowed_origins.append("http://localhost:5173")
 
@@ -98,120 +98,80 @@ def create_app():
     migrate.init_app(app, db)
 
     # =====================================
-    # DEBUG REQUEST HEADERS
-    # =====================================
-
-    @app.before_request
-    def debug_headers():
-
-        print("\n========== BEFORE REQUEST ==========")
-        print("METHOD:", request.method)
-        print("PATH:", request.path)
-        print(
-            "Authorization:",
-            request.headers.get("Authorization")
-        )
-
-    # =====================================
-    # IMPORT BLUEPRINTS
+    # REGISTER BLUEPRINTS
     # =====================================
 
     from app.routes.auth import auth_bp
     from app.routes.client import client_bp
     from app.routes.technician import technician_bp
-    from app.routes.admin import admin_bp
     from app.routes.payment import payment_bp
     from app.routes.wallet import wallet_bp
-
-    # =====================================
-    # REGISTER BLUEPRINTS
-    # =====================================
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(client_bp)
     app.register_blueprint(technician_bp)
-    app.register_blueprint(admin_bp)
     app.register_blueprint(payment_bp)
     app.register_blueprint(wallet_bp)
 
     # =====================================
-    # JWT ERROR HANDLERS
+    # ENSURE DEFAULT SERVICES
+    # =====================================
+    #
+    # This runs against whichever database
+    # the application is connected to.
+    #
+    # Locally:
+    #     SQLite
+    #
+    # Render:
+    #     DATABASE_URL
+    #
+    # Therefore we don't need Render Shell
+    # to populate the production services.
     # =====================================
 
-    @jwt.invalid_token_loader
-    def invalid_token(reason):
+    with app.app_context():
 
-        print("\n========== INVALID TOKEN ==========")
-        print(reason)
+        try:
 
-        return {
-            "message": reason
-        }, 401
+            # Import here to avoid circular imports
+            from app.services.service_seed import ensure_services
 
-    @jwt.unauthorized_loader
-    def unauthorized(reason):
+            added_services = ensure_services()
 
-        print("\n========== UNAUTHORIZED ==========")
-        print(reason)
+            if added_services:
 
-        return {
-            "message": reason
-        }, 401
+                print(
+                    f"DEFAULT SERVICES: "
+                    f"added {added_services} service(s)"
+                )
 
-    @jwt.expired_token_loader
-    def expired(jwt_header, jwt_payload):
+            else:
 
-        print("\n========== TOKEN EXPIRED ==========")
-        print(jwt_payload)
+                print(
+                    "DEFAULT SERVICES: "
+                    "all services already exist"
+                )
 
-        return {
-            "message": "Token expired"
-        }, 401
+        except Exception as e:
 
-    @jwt.needs_fresh_token_loader
-    def needs_fresh(jwt_header, jwt_payload):
+            db.session.rollback()
 
-        print("\n========== NEEDS FRESH TOKEN ==========")
-        print(jwt_payload)
-
-        return {
-            "message": "Fresh token required"
-        }, 401
-
-    @jwt.revoked_token_loader
-    def revoked(jwt_header, jwt_payload):
-
-        print("\n========== TOKEN REVOKED ==========")
-        print(jwt_payload)
-
-        return {
-            "message": "Token revoked"
-        }, 401
-
-    @jwt.token_verification_failed_loader
-    def verification_failed(jwt_header, jwt_payload):
-
-        print("\n========== TOKEN VERIFICATION FAILED ==========")
-        print("Header:", jwt_header)
-        print("Payload:", jwt_payload)
-
-        return {
-            "message": "Token verification failed"
-        }, 401
+            print(
+                "DEFAULT SERVICES SEED FAILED:",
+                str(e)
+            )
 
     # =====================================
     # HEALTH CHECK
     # =====================================
 
-    @app.get("/api/health")
-    def health_check():
+    @app.route("/api/health", methods=["GET"])
+    def health():
+
         return {
             "status": "ok",
-            "service": "Nyũmba Dragon 888 API"
+            "message": "Nyũmba Dragon 888 API is running"
         }, 200
-
-    # =====================================
-    # RETURN APPLICATION
-    # =====================================
 
     return app
