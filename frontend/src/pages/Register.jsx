@@ -1,6 +1,7 @@
 import {
     useState,
-    useContext
+    useContext,
+    useEffect
 } from "react";
 
 import {
@@ -13,6 +14,8 @@ import AuthLayout from "../components/auth/AuthLayout";
 import {
     AuthContext
 } from "../context/AuthContext";
+
+import api from "../services/api";
 
 
 export default function Register() {
@@ -31,9 +34,13 @@ export default function Register() {
         age: "",
         phone: "",
         password: "",
-        role: "CLIENT"
+        role: "CLIENT",
+        profession_id: ""
 
     });
+
+    const [professions, setProfessions] = useState([]);
+    const [loadingProfessions, setLoadingProfessions] = useState(false);
 
 
     const [error, setError] =
@@ -42,6 +49,55 @@ export default function Register() {
 
     const [loading, setLoading] =
         useState(false);
+
+
+    // =====================================
+    // LOAD PROFESSIONAL CATALOGUE
+    // =====================================
+
+    useEffect(() => {
+
+        const loadProfessions = async () => {
+
+            try {
+
+                setLoadingProfessions(true);
+
+                const response = await api.get(
+                    "/professions"
+                );
+
+                setProfessions(
+                    response.data || []
+                );
+
+                console.log(
+                    "PROFESSIONS LOADED:",
+                    response.data?.length
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "FAILED TO LOAD PROFESSIONS:",
+                    error
+                );
+
+                setError(
+                    "Unable to load professional catalogue."
+                );
+
+            } finally {
+
+                setLoadingProfessions(false);
+
+            }
+
+        };
+
+        loadProfessions();
+
+    }, []);
 
 
     // =====================================
@@ -92,7 +148,10 @@ export default function Register() {
                     form.password,
 
                 role:
-                    form.role
+                    form.role,
+
+                profession_id:
+                    form.profession_id
 
             });
 
@@ -443,6 +502,114 @@ export default function Register() {
                     </select>
 
                 </div>
+
+
+                {/* TECHNICIAN PROFESSION */}
+                {form.role === "TECHNICIAN" && (
+
+                    <div>
+
+                        <label
+                            className="
+                                block
+                                text-sm
+                                font-semibold
+                                text-black
+                                mb-2
+                            "
+                        >
+                            Profession
+                        </label>
+
+                        <select
+                            name="profession_id"
+                            value={form.profession_id}
+                            onChange={handleChange}
+                            required
+                            disabled={loadingProfessions}
+                            className="
+                                w-full
+                                border
+                                border-gray-300
+                                rounded-xl
+                                px-4
+                                py-3
+                                text-black
+                                bg-white
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-green-600
+                                focus:border-green-600
+                                disabled:bg-gray-100
+                            "
+                        >
+
+                            <option value="">
+                                {loadingProfessions
+                                    ? "Loading professions..."
+                                    : "Select your profession"
+                                }
+                            </option>
+
+                            {Object.entries(
+                                professions.reduce(
+                                    (groups, profession) => {
+
+                                        if (!groups[profession.category]) {
+                                            groups[profession.category] = [];
+                                        }
+
+                                        groups[profession.category].push(
+                                            profession
+                                        );
+
+                                        return groups;
+
+                                    },
+                                    {}
+                                )
+                            ).map(
+                                ([category, categoryProfessions]) => (
+
+                                    <optgroup
+                                        key={category}
+                                        label={category}
+                                    >
+
+                                        {categoryProfessions.map(
+                                            (profession) => (
+
+                                                <option
+                                                    key={profession.id}
+                                                    value={profession.id}
+                                                >
+                                                    {profession.name}
+                                                </option>
+
+                                            )
+                                        )}
+
+                                    </optgroup>
+
+                                )
+                            )}
+
+                        </select>
+
+                        <p
+                            className="
+                                text-xs
+                                text-gray-500
+                                mt-2
+                            "
+                        >
+                            Choose the profession that best describes
+                            what you do.
+                        </p>
+
+                    </div>
+
+                )}
 
 
                 {/* REGISTER BUTTON */}

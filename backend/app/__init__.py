@@ -9,6 +9,8 @@ from flask_cors import CORS
 
 from app.extensions import db, jwt, migrate
 
+from app.models.profession import Profession
+
 
 def create_app():
 
@@ -106,12 +108,14 @@ def create_app():
     from app.routes.technician import technician_bp
     from app.routes.payment import payment_bp
     from app.routes.wallet import wallet_bp
+    from app.routes.profession import profession_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(client_bp)
     app.register_blueprint(technician_bp)
     app.register_blueprint(payment_bp)
     app.register_blueprint(wallet_bp)
+    app.register_blueprint(profession_bp)
 
     # =====================================
     # ENSURE DEFAULT SERVICES

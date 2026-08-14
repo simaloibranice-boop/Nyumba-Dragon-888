@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from app.extensions import db
+from app.models.profession import Profession
 
 
 class TechnicianProfile(db.Model):
@@ -19,6 +20,13 @@ class TechnicianProfile(db.Model):
         db.ForeignKey("users.id"),
         nullable=False,
         unique=True
+    )
+
+
+    profession_id = db.Column(
+        db.Integer,
+        db.ForeignKey("professions.id"),
+        nullable=True
     )
 
 
@@ -60,6 +68,15 @@ class TechnicianProfile(db.Model):
     )
 
 
+    profession = db.relationship(
+        "Profession",
+        backref=db.backref(
+            "technicians",
+            lazy=True
+        )
+    )
+
+
     user = db.relationship(
         "User",
         backref=db.backref(
@@ -77,20 +94,58 @@ class TechnicianProfile(db.Model):
 
             "user_id": self.user_id,
 
-            "name": self.user.username
-            if self.user else None,
+            "name":
+                self.user.full_name
+                if self.user
+                else None,
 
-            "specialization": self.specialization,
+            "phone":
+                self.user.phone
+                if self.user
+                else None,
 
-            "location": self.location,
+            "email":
+                self.user.email
+                if self.user
+                else None,
 
-            "availability": self.availability,
+            "profile_image":
+                self.user.profile_image
+                if self.user
+                else None,
 
-            "rating": self.rating,
+            "specialization":
+                self.specialization,
 
-            "completed_jobs": self.completed_jobs,
+            "profession_id":
+                self.profession_id,
 
-            "created_at": self.created_at.isoformat()
-            if self.created_at else None
+            "profession":
+                self.profession.name
+                if self.profession
+                else None,
+
+            "profession_category":
+                self.profession.category
+                if self.profession
+                else None,
+
+            "location":
+                self.location,
+
+            "availability":
+                self.availability,
+
+            "rating":
+                self.rating,
+
+            "completed_jobs":
+                self.completed_jobs,
+
+            "created_at":
+                self.created_at.isoformat()
+                if self.created_at
+                else None
 
         }
+

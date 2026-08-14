@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+import cloudinary.uploader
 from flask_jwt_extended import (
     create_access_token,
     jwt_required,
@@ -8,6 +9,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.extensions import db
 from app.models.user import User
+from app.models.technician_profile import TechnicianProfile
+from app.models.profession import Profession
+from app.utils import cloudinary_config
 
 
 auth_bp = Blueprint(
@@ -76,11 +80,40 @@ def register():
         data.get("role", "CLIENT")
     ).upper()
 
+    profession_id = data.get("profession_id")
+
     if role not in [
         "CLIENT",
         "TECHNICIAN"
     ]:
         role = "CLIENT"
+
+    profession = None
+
+    if role == "TECHNICIAN":
+
+        if not profession_id:
+            return jsonify({
+                "message": "Please select your profession"
+            }), 400
+
+        try:
+            profession_id = int(profession_id)
+
+        except (TypeError, ValueError):
+            return jsonify({
+                "message": "Invalid profession"
+            }), 400
+
+        profession = db.session.get(
+            Profession,
+            profession_id
+        )
+
+        if not profession or not profession.active:
+            return jsonify({
+                "message": "Selected profession is not available"
+            }), 400
 
     if not all([
         full_name,
@@ -129,6 +162,36 @@ def register():
 
     db.session.add(user)
     db.session.commit()
+
+    # ==========================================
+    # CREATE TECHNICIAN PROFILE
+    # ==========================================
+
+    if role == "TECHNICIAN":
+
+        technician_profile = TechnicianProfile(
+
+            user_id=user.id,
+
+            profession_id=profession.id,
+
+            specialization=profession.name,
+
+            location="Not Assigned",
+
+            availability="AVAILABLE",
+
+            rating=5.0,
+
+            completed_jobs=0
+
+        )
+
+        db.session.add(
+            technician_profile
+        )
+
+        db.session.commit()
 
     token = create_access_token(
         identity=str(user.id)
@@ -352,6 +415,97 @@ def update_profile():
         "user": user_response(user)
 
     }), 200
+
+
+# ==========================================
+# UPLOAD PROFILE IMAGE
+# ==========================================
+
+@auth_bp.route("/profile/image", methods=["POST"])
+@jwt_required()
+def upload_profile_image():
+
+    identity = get_jwt_identity()
+
+    try:
+        user_id = int(identity)
+    except (TypeError, ValueError):
+
+        return jsonify({
+            "message": "Invalid user identity"
+        }), 401
+
+    user = db.session.get(
+        User,
+        user_id
+    )
+
+    if not user:
+
+        return jsonify({
+            "message": "User not found"
+        }), 404
+
+    if "image" not in request.files:
+
+        return jsonify({
+            "message": "No image file provided"
+        }), 400
+
+    image = request.files["image"]
+
+    if not image or not image.filename:
+
+        return jsonify({
+            "message": "No image file selected"
+        }), 400
+
+    allowed_types = {
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    }
+
+    if image.mimetype not in allowed_types:
+
+        return jsonify({
+            "message": "Only JPG, PNG and WebP images are allowed"
+        }), 400
+
+    try:
+
+        result = cloudinary.uploader.upload(
+            image,
+            folder="nyumba-dragon-888/profile-images",
+            public_id=f"user_{user.id}",
+            overwrite=True,
+            resource_type="image"
+        )
+
+        user.profile_image = result.get("secure_url")
+
+        db.session.commit()
+
+        return jsonify({
+
+            "message": "Profile image uploaded successfully",
+
+            "profile_image": user.profile_image,
+
+            "user": user_response(user)
+
+        }), 200
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        print("Cloudinary upload error:", str(e))
+
+        return jsonify({
+            "message": "Failed to upload profile image"
+        }), 500
+
 
 
 # ==========================================
