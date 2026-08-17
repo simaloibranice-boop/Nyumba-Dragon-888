@@ -8,6 +8,7 @@ from flask_jwt_extended import (
 from app import db
 
 from app.models.service_request import ServiceRequest
+from app.models.service import Service
 from app.models.technician_profile import TechnicianProfile
 
 
@@ -28,26 +29,64 @@ technician_bp = Blueprint(
 )
 @jwt_required()
 def get_jobs():
-    from flask import request
 
-    print("\n========== TECHNICIAN JOBS ==========")
-    print("Authorization:", request.headers.get("Authorization"))
-    print("Headers:", dict(request.headers))
+    user_id = int(get_jwt_identity())
 
-    jobs = ServiceRequest.query.all()
+    profile = TechnicianProfile.query.filter_by(
+        user_id=user_id
+    ).first()
 
+    if not profile:
+        return jsonify({
+            "message": "Technician profile not found"
+        }), 404
+
+    if not profile.profession_id:
+        return jsonify({
+            "message": "Technician profession is not configured",
+            "jobs": []
+        }), 200
+
+    jobs = (
+        ServiceRequest.query
+        .join(
+            ServiceRequest.service
+        )
+        .filter(
+            Service.profession_id == profile.profession_id
+        )
+        .filter(
+            ServiceRequest.technician_id.is_(None)
+        )
+        .order_by(
+            ServiceRequest.created_at.desc()
+        )
+        .all()
+    )
 
     return jsonify([
 
         {
-
             "id": job.id,
 
-            "service":
-                job.title,
+            "service": (
+                job.service.name
+                if job.service
+                else job.title
+            ),
+
+            "service_id":
+                job.service_id,
+
+            "profession":
+                (
+                    job.service.profession.name
+                    if job.service and job.service.profession
+                    else None
+                ),
 
             "customer":
-                job.customer.username
+                job.customer.full_name
                 if job.customer
                 else "Unknown",
 
@@ -62,7 +101,7 @@ def get_jobs():
 
             "price":
                 job.price
-                if hasattr(job,"price")
+                if hasattr(job, "price")
                 else 0,
 
             "status":
@@ -73,10 +112,6 @@ def get_jobs():
         for job in jobs
 
     ])
-
-
-
-
 
 
 

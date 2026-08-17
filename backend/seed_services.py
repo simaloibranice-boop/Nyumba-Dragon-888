@@ -1,6 +1,7 @@
 from app import create_app
 from app.extensions import db
 from app.models.service import Service
+from app.models.profession import Profession
 
 
 app = create_app()
@@ -13,7 +14,8 @@ SERVICES = [
         "description": (
             "Professional electrical installation, wiring, "
             "repairs, maintenance and electrical system upgrades."
-        )
+        ),
+        "profession": "Electrician",
     },
     {
         "name": "Plumbing",
@@ -21,7 +23,8 @@ SERVICES = [
         "description": (
             "Reliable plumbing installation, pipe repairs, "
             "leak detection, drainage and maintenance services."
-        )
+        ),
+        "profession": "Plumber",
     },
     {
         "name": "Construction",
@@ -29,7 +32,8 @@ SERVICES = [
         "description": (
             "Professional construction, masonry, renovations, "
             "building and general construction services."
-        )
+        ),
+        "profession": "Mason",
     },
     {
         "name": "Security Systems",
@@ -37,7 +41,8 @@ SERVICES = [
         "description": (
             "Installation and maintenance of CCTV cameras, "
             "alarms, access control and other security systems."
-        )
+        ),
+        "profession": "CCTV Technician",
     },
     {
         "name": "Solar Installation",
@@ -45,7 +50,8 @@ SERVICES = [
         "description": (
             "Solar panel installation, maintenance and "
             "renewable energy solutions for homes and businesses."
-        )
+        ),
+        "profession": "Solar Installer",
     },
     {
         "name": "Carpentry",
@@ -53,7 +59,8 @@ SERVICES = [
         "description": (
             "Professional carpentry, furniture making, "
             "woodwork, repairs and custom installations."
-        )
+        ),
+        "profession": "Carpenter",
     },
     {
         "name": "Painting",
@@ -61,7 +68,8 @@ SERVICES = [
         "description": (
             "Interior and exterior painting, wall finishing "
             "and professional decoration services."
-        )
+        ),
+        "profession": "Painter",
     },
     {
         "name": "Cleaning",
@@ -69,62 +77,101 @@ SERVICES = [
         "description": (
             "Professional residential and commercial cleaning "
             "services for homes, offices and other spaces."
-        )
-    }
+        ),
+        "profession": "Cleaner",
+    },
 ]
 
 
 with app.app_context():
 
     print()
-    print("========================================")
-    print("     NYUMBA DRAGON 888 SERVICE SEED")
-    print("========================================")
+    print("=" * 70)
+    print("      NYŨMBA DRAGON 888 SERVICE + PROFESSION SEED")
+    print("=" * 70)
     print()
 
     added = 0
-    skipped = 0
+    updated = 0
+    unchanged = 0
 
     for data in SERVICES:
 
-        existing = Service.query.filter_by(
+        profession = Profession.query.filter_by(
+            name=data["profession"],
+            active=True
+        ).first()
+
+        if not profession:
+            print(
+                f"ERROR | Profession not found: "
+                f"{data['profession']}"
+            )
+            continue
+
+        service = Service.query.filter_by(
             name=data["name"]
         ).first()
 
-        if existing:
+        if service is None:
 
-            print(
-                f"SKIPPED  | "
-                f"{existing.name}"
+            service = Service(
+                name=data["name"],
+                category=data["category"],
+                profession_id=profession.id,
+                description=data["description"],
+                active=True
             )
 
-            skipped += 1
-            continue
+            db.session.add(service)
+            added += 1
 
-        service = Service(
-            name=data["name"],
-            category=data["category"],
-            description=data["description"],
-            active=True
-        )
+            print(
+                f"ADDED   | {data['name']:<25} "
+                f"→ {profession.name}"
+            )
 
-        db.session.add(service)
+        else:
 
-        print(
-            f"ADDED    | "
-            f"{data['name']} | "
-            f"{data['category']}"
-        )
+            changed = False
 
-        added += 1
+            if service.category != data["category"]:
+                service.category = data["category"]
+                changed = True
+
+            if service.description != data["description"]:
+                service.description = data["description"]
+                changed = True
+
+            if service.active is not True:
+                service.active = True
+                changed = True
+
+            if service.profession_id != profession.id:
+                service.profession_id = profession.id
+                changed = True
+
+            if changed:
+                updated += 1
+
+                print(
+                    f"UPDATED | {data['name']:<25} "
+                    f"→ {profession.name}"
+                )
+            else:
+                unchanged += 1
+
+                print(
+                    f"OK      | {data['name']:<25} "
+                    f"→ {profession.name}"
+                )
 
     db.session.commit()
 
     print()
-    print("========================================")
-    print("             SEED COMPLETE")
-    print("========================================")
-    print(f"Added:   {added}")
-    print(f"Skipped: {skipped}")
-    print(f"Total:   {Service.query.count()}")
-    print()
+    print("=" * 70)
+    print(f"ADDED:       {added}")
+    print(f"UPDATED:     {updated}")
+    print(f"UNCHANGED:   {unchanged}")
+    print(f"TOTAL:       {Service.query.count()}")
+    print("=" * 70)
